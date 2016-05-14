@@ -8,16 +8,17 @@
 #include <VarSpeedServo.h>
 #include <SPI.h>
 #include "Adafruit_GFX.h" // Adafruit graphics
+#include <Fonts/FreeSansBoldOblique9pt7b.h>
 
 ////////////////////////////////////////////////////
 //////board game defines/////////
 ////////////////////////////////////////////////////
-#define boardHeight 70    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
+#define boardHeight 110    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
 #define boardAngle 100    //The angle the board is rotated off of zero
-#define headAngle 94      //the angle of the head when fishing hook is centered on the board
-#define tableHeight 130   //this is the angle at which the robot should drop fish off
+#define headAngle 98      //the angle of the head when fishing hook is centered on the board
+#define tableHeight 148   //this is the angle at which the robot should drop fish off
 #define unloadAngle 0     //this is the angle at which the head is moved to in order to unload a fish
-#define xunloadPos  50    //the step position of the x carriage for unloading 
+#define xunloadPos  25    //the step position of the x carriage for unloading 
 
 /////////////////////////////////////////////
 ////inputs and output pins////
@@ -91,16 +92,16 @@ int targetpos[] = {0, 0, 0};                                         //XPOS IN S
 int currentpos[] = {0, 0, 0};                                       //STORE THE CURRENT POSITION HERE AFTER MOTOR IS NO LONGER BUSY
 int reqpos[] = {0, 0, 0};
 int deltapos[] = {0, 0, 0};
-
+int iscrn = 0;                                                      //counter for displaying waiting period on display
 void setup() {
   //activate tft screen
   tft.begin();
   tft.fillScreen(ILI9341_BLACK);                                     //blackscreen
   tft.setCursor(0, 0);
-  tft.setTextColor(ILI9341_WHITE, ILI9341_BLACK);                    // White on black
+  tft.setTextColor(ILI9341_ORANGE, ILI9341_BLACK);                    // White on black
   tft.setTextWrap(true);                                             // Don't wrap text to next line
   tft.setTextSize(1);                                                // large letters
-  tft.setRotation(1);                                                // horizontal display
+  tft.setRotation(1);                                                 // horizontal display
   tft.println("TFT Activated");
 
   //attach servos to ports
@@ -132,8 +133,11 @@ void setup() {
 }
 
 void loop() {
+  //this just waits for a position and then moves to it. 
+  
   getinputs();                                              //I wrote this function to parse 3 integers into the reqpos array
-  RoboMove(reqpos[0], reqpos[1], reqpos[2]);                                                        
+  RoboMove(reqpos[0], reqpos[1], reqpos[2]);
+
 }
 
 int zeroX() { //zeros the x axis of the robot with the micro switch
@@ -151,11 +155,8 @@ int zeroX() { //zeros the x axis of the robot with the micro switch
   delay(100);
   tft.println("Zeroed");
   XStepper.resetPos();
-  XStepper.goTo(250);
-  while (XStepper.busyCheck() == 1)
-  {
-    delay(10);
-  }
+  XStepper.goTo(100);
+  waitforX();
 }
 
 int checkpos() { //function to validate requested position move takes position in reqpos[] and puts it into targetpos[]
@@ -207,16 +208,21 @@ int checkpos() { //function to validate requested position move takes position i
 }
 
 int getinputs() { //buffer serial interface
-
+  tft.print("Waiting on inputs");
+  int x = tft.getCursorX();
+  int y = tft.getCursorY();
+  iscrn = 0;                                                 //avoid a memory overflow
   while ( (Serial.available() < 3))
   {
-    delay (5);
+    waiting(12, x, y);
   }
+  tft.println();
+  checkscreen();
   for (int n = 0; n < 3; n++)
   {
     reqpos[n] = Serial.parseInt(); // Then: Get them.
   }
-  tft.print("inputs parsed: ");
+  tft.print("parsed: ");
 }
 
 int shakey(int x) {
@@ -237,16 +243,24 @@ int shakey(int x) {
     delay(shakeyWaitTime);
     Height.write(tableHeight, 250);
     tft.print("Shakey!");
+    checkscreen();
   }                                                   //rinse
   tft.println();
   Height.write(5, 150);
+  checkscreen();
 }
 
-int waitforX() {
+int waitforX() {                  //waits for the stepper motor to no longer be busy before proceeding.
+  tft.print("Waiting on stepper");
+  int x = tft.getCursorX();
+  int y = tft.getCursorY();
+  iscrn = 0;                                                 //avoid a memory overflow
   while (XStepper.busyCheck() == 1)
   {
-    delay(10);
+    waiting(12, x, y);
   }
+  tft.println();
+  checkscreen();
 
 }
 
@@ -255,31 +269,25 @@ int RoboMove(int x, int headA, int heightA) {
   reqpos[1] = headA;
   reqpos[2] = heightA;
   checkpos();                             //checks the requested input to ensure that the position exists and doesn't cause a conflict
-tryagain:
-  if (XStepper.busyCheck() == 0)          //If the stepper motor busy pin is low then move the motor.
+
+
+  Height.write(targetpos[2], heightVel);               // move servo to target position at height velocity defined above.
+  HeadAngle.write(targetpos[1], headVel);              // move servo to target position at height velocity defined above.
+  XStepper.goTo(targetpos[0]);                         //move stepper motor to the requested position. Stepper decides direction, accel and speed.
+  for (int n = 0; n < 3; n++)
   {
-    Height.write(targetpos[2], heightVel);               // move servo to target position at height velocity defined above.
-    HeadAngle.write(targetpos[1], headVel);              // move servo to target position at height velocity defined above.
-    XStepper.goTo(targetpos[0]);                         //move stepper motor to the requested position. Stepper decides direction, accel and speed.
-    for (int n = 0; n < 3; n++)
-    {
-      currentpos[n] = targetpos[n];                      //set the target position to the current posision post-move
-      deltapos[n] = 0;                                   //reset the change in position array which tracks if something is changing or not.
-    }
+    currentpos[n] = targetpos[n];                      //set the target position to the current posision post-move
+    deltapos[n] = 0;                                   //reset the change in position array which tracks if something is changing or not.
   }
-  else
-  {
-    tft.println("Stepper busy, wait a moment.");      //It says the stepper is busy but it will still move, it just won't tell you.
-    delay(25);                                           //give the stepper some time to not be busy
-    goto tryagain;
-  }
-  delay(1000);
+  waitforX();
+  delay(100);
+  checkscreen();
 }
 
 int fishing(int steps, int angle) {
-//  RoboMove(300, 90, 0);
-//  delay(50);
-    
+  //  RoboMove(300, 90, 0);
+  //  delay(50);
+
   RoboMove(steps, angle, (boardHeight - 15));
   delay(1000);                                                              //settling time for the fishing rod
 
@@ -298,4 +306,23 @@ int fishing(int steps, int angle) {
   shakey(3);
 }
 
+int checkscreen() {
+  if (tft.getCursorY() > 200 ) {
+    tft.fillScreen(ILI9341_BLACK);                                     //blackscreen
+    tft.setCursor(0, 0);
+    tft.println("Screen Cleared...");
+    iscrn = 0;                                                              //resets counter if inside waiting loop with display
+  }
+}
+int waiting(int waitdiv, int endline, int line) {
+  delay (5);
+  iscrn++;
+  if (iscrn % waitdiv == 1)
+  {
+    tft.print(".");
+    if (tft.getCursorX() > 310) {                                                 //if we reach the end of the screen clear the periods and reprint them.
+      tft.fillRect(endline, line, 300, 7, ILI9341_BLACK); tft.setCursor(endline, line);
+    }
+  }
+}
 
