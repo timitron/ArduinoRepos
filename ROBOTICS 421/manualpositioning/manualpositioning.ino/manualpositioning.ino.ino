@@ -133,7 +133,7 @@ void setup() {
 
 void loop() {
   getinputs();                                              //I wrote this function to parse 3 integers into the reqpos array
-  RoboMove(reqpos[0], reqpos[1], reqpos[2]);                                                               //just incase we're moving still
+  RoboMove(reqpos[0], reqpos[1], reqpos[2]);                                                        
 }
 
 int zeroX() { //zeros the x axis of the robot with the micro switch
@@ -277,6 +277,9 @@ tryagain:
 }
 
 int fishing(int steps, int angle) {
+//  RoboMove(300, 90, 0);
+//  delay(50);
+    
   RoboMove(steps, angle, (boardHeight - 15));
   delay(1000);                                                              //settling time for the fishing rod
 
