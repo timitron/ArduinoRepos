@@ -318,7 +318,7 @@ int checkscreen() {
 int waiting(int waitdiv, int endline, int line) {
   delay (5);
   iscrn++;
-  if (iscrn % 12 == 1)
+  if (iscrn % waitdiv == 1)
   {
     tft.print(".");
     if (tft.getCursorX() > 310) {                                                 //if we reach the end of the screen clear the periods and reprint them.
