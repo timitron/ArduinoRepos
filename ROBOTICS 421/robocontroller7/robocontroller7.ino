@@ -1,3 +1,5 @@
+#include <SPI.h>
+#include <SD.h>
 #include <TouchScreen.h>
 #include <pin_magic.h>
 #include <registers.h>
@@ -6,9 +8,9 @@
 #include <SparkFunAutoDriver.h>
 #include <SparkFundSPINConstants.h>
 #include <VarSpeedServo.h>
-#include <SPI.h>
-#include "Adafruit_GFX.h" // Adafruit graphics
+#include <Adafruit_GFX.h> // Adafruit graphics
 #include <Fonts/FreeSansBoldOblique9pt7b.h>
+
 
 ////////////////////////////////////////////////////
 //////board game defines/////////
@@ -19,13 +21,17 @@
 #define tableHeight 160   //this is the angle at which the robot should drop fish off
 #define unloadAngle 0     //this is the angle at which the head is moved to in order to unload a fish
 #define xunloadPos  25    //the step position of the x carriage for unloading 
+#define fishdiff 80
+#define fishtimeout 10
+
 
 /////////////////////////////////////////////
 ////inputs and output pins////
 /////////////////////////////////////////////
-#define homeflagpin 48
-#define headPin 10
-#define heightPin 11
+#define homeflagpin 25
+#define headPin 11
+#define heightPin 10
+#define pressurePin A4
 #define startPin  //this isn't attached yet
 
 /////////////////////////////////////////////
@@ -63,6 +69,7 @@ VarSpeedServo Height;                                                 //servo FO
 /////////////////////////////////////////////
 //LCD Touchscreen over pins and variables //
 /////////////////////////////////////////////
+#define SD_CS 24
 
 // These are the four touchscreen analog pins
 #define YP A15
@@ -94,6 +101,9 @@ int reqpos[] = {0, 0, 0};
 int deltapos[] = {0, 0, 0};
 int iscrn = 0;                                                      //counter for displaying waiting period on display
 void setup() {
+  SPI.setClockDivider(SPI_CLOCK_DIV4);
+  //  SPI.setDataMode(SPI_MODE1);
+
   //activate tft screen
   tft.begin();
   tft.fillScreen(ILI9341_BLACK);                                     //blackscreen
@@ -102,7 +112,7 @@ void setup() {
   tft.setTextWrap(true);                                             // Don't wrap text to next line
   tft.setTextSize(1);                                                // large letters
   tft.setRotation(1);                                                 // horizontal display
-  tft.println("TFT Activated");
+
 
   //attach servos to ports
   HeadAngle.attach(headPin, headPosMin, headPosMax);                // attaches the servo on pin 10 to the servo object
@@ -129,12 +139,20 @@ void setup() {
   tft.println("Stepper Activated");
   zeroX();                                                                //Resets the x position
   delay(50);
+  pinMode(pressurePin, INPUT);
+
+  //SD.begin(SD_CS);
+
+  //yield();
+  //bmpDraw("splash.bmp", 0, 0);
 
 }
 
 void loop() {
 
-fishing(600,110);
+  getinputs();
+  fishing(reqpos[0], reqpos[1]);
+  fishing(600, 110);
 }
 
 int zeroX() { //zeros the x axis of the robot with the micro switch
@@ -278,23 +296,40 @@ int RoboMove(int x, int headA, int heightA) {
   checkscreen();
 }
 int fishing(int steps, int angle) {
+  int nofish;
+
+  
   //  RoboMove(300, 90, 0);
   //  delay(50);
   tft.print("Positioning to fish - ");
   RoboMove(steps, angle, (boardHeight - 15));
-  delay(2000);                                                              //settling time for the fishing rod
+  delay(1900);                                                              //settling time for the fishing rod
+   nofish = analogRead(pressurePin);
+   delay(100);
+  tft.print(nofish);
+  int fishcount =0;
+    tft.print("Fishing - ");
+      int temp;
+  do
+  {
 
-  tft.print("Fishing - ");
-  //fishing rod up and down
-  Height.write((boardHeight + 25), (heightVel * 2));                                      // move servo to target position at height velocity defined above.
-  delay(100);
+    delay(750);
+    //fishing rod up and down
+    Height.write((boardHeight + 25), (heightVel * 2));                                      // move servo to target position at height velocity defined above.
+    delay(200);
 
-  //fish pull
-  Height.write(5, 200);                                      // move servo to target position at height velocity defined above.
-  HeadAngle.write((angle + 3), headVel);
-  delay(1005);
-
-  tft.println("Returning to drop-off");
+    //fish pull
+    Height.write((boardHeight - 40), 200);                                      // move servo to target position at height velocity defined above.
+    HeadAngle.write((angle + 3), headVel);
+    fishcount++;
+  temp = analogRead(pressurePin);
+    delay(100);
+    temp=nofish-temp;
+    tft.print(temp);
+    tft.print(", ");
+  } while ((temp<fishdiff) && (fishcount<fishtimeout));
+  
+  tft.println("\nReturning to drop-off");
   //turn back
   RoboMove(25, 5, 5);                                       // move servo to target position at height velocity defined above.
   delay(25);
@@ -312,6 +347,9 @@ int checkscreen() {
 int waiting(int waitdiv, int endline, int line) {
   delay (5);
   iscrn++;
+  if (iscrn>30000){
+    iscrn = 0;
+  }
   if (iscrn % waitdiv == 1)
   {
     tft.print(".");

@@ -16,16 +16,17 @@
 #define boardHeight 110    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
 #define boardAngle 100    //The angle the board is rotated off of zero
 #define headAngle 98      //the angle of the head when fishing hook is centered on the board
-#define tableHeight 148   //this is the angle at which the robot should drop fish off
+#define tableHeight 160   //this is the angle at which the robot should drop fish off
 #define unloadAngle 0     //this is the angle at which the head is moved to in order to unload a fish
 #define xunloadPos  25    //the step position of the x carriage for unloading 
 
 /////////////////////////////////////////////
 ////inputs and output pins////
 /////////////////////////////////////////////
-#define homeflagpin 48
-#define headPin 10
-#define heightPin 11
+#define homeflagpin 25
+#define headPin 13
+#define heightPin 12
+#define pressurePin A4
 #define startPin  //this isn't attached yet
 
 /////////////////////////////////////////////
@@ -50,7 +51,7 @@ AutoDriver XStepper(xCSPin, xRSTPin, xBusyPin);       //create instance of stepp
 /////////////////////////////////////////////
 #define headPosMin 10                         //PWM minimum value for angle 0    (needed to remove shaking)
 #define headPosMax 245                        //pwm maximum value for angle 180 (needed to remove shaking)  
-#define headVel 75                            //velocity of head actuator 1-255
+#define headVel 50                            //velocity of head actuator 1-255
 
 #define heightPosMin 10                       //PWM minimum value for angle 0    (needed to remove shaking)
 #define heightPosMax 245                      //PWM MAXIMUM value for angle 0    (needed to remove shaking)
@@ -127,18 +128,24 @@ void setup() {
   XStepper.setPWMFreq(PWM_DIV_2, PWM_MUL_2);                             //PWM Frequency dividers and multipliers to keep the whine down
   XStepper.setSlewRate(SR_530V_us);                                      //Sets rate of increase in voltage between phases during a step, higher means more torque at large RPM.
   tft.println("Stepper Activated");
-//  zeroX();                                                                //Resets the x position
+  zeroX();                                                                //Resets the x position
   delay(50);
-pinMode(A4, INPUT);
+  pinMode(pressurePin, INPUT);
 }
 
 void loop() {
-  //this just waits for a position and then moves to it. 
+  int temp;
 
-  int temp; temp=analogRead(A4);
-  tft.println(temp);
+  Height.write(0, 200);
+  temp = analogRead(pressurePin);
   delay(100);
+  tft.println(temp);
+  delay(1250);
   checkscreen();
+
+  Height.write(140, 250);
+  delay(800);
+
 
 }
 
@@ -226,7 +233,6 @@ int getinputs() { //buffer serial interface
   }
   tft.print("parsed: ");
 }
-
 int shakey(int x) {
   // This function shakes the fishing rod to dislodge a fish the number of times which is passed
 
@@ -251,7 +257,6 @@ int shakey(int x) {
   Height.write(5, 150);
   checkscreen();
 }
-
 int waitforX() {                  //waits for the stepper motor to no longer be busy before proceeding.
   tft.print("Waiting on stepper");
   int x = tft.getCursorX();
@@ -265,7 +270,6 @@ int waitforX() {                  //waits for the stepper motor to no longer be 
   checkscreen();
 
 }
-
 int RoboMove(int x, int headA, int heightA) {
   reqpos[0] = x;
   reqpos[1] = headA;
@@ -285,14 +289,14 @@ int RoboMove(int x, int headA, int heightA) {
   delay(100);
   checkscreen();
 }
-
 int fishing(int steps, int angle) {
   //  RoboMove(300, 90, 0);
   //  delay(50);
-
+  tft.print("Positioning to fish - ");
   RoboMove(steps, angle, (boardHeight - 15));
-  delay(1000);                                                              //settling time for the fishing rod
+  delay(2000);                                                              //settling time for the fishing rod
 
+  tft.print("Fishing - ");
   //fishing rod up and down
   Height.write((boardHeight + 25), (heightVel * 2));                                      // move servo to target position at height velocity defined above.
   delay(100);
@@ -300,8 +304,9 @@ int fishing(int steps, int angle) {
   //fish pull
   Height.write(5, 200);                                      // move servo to target position at height velocity defined above.
   HeadAngle.write((angle + 3), headVel);
-  delay(50);
+  delay(1005);
 
+  tft.println("Returning to drop-off");
   //turn back
   RoboMove(25, 5, 5);                                       // move servo to target position at height velocity defined above.
   delay(25);
