@@ -29,7 +29,7 @@
 ////inputs and output pins////
 /////////////////////////////////////////////
 #define homeflagpin 25
-#define headPin 11
+#define headPin 9
 #define heightPin 10
 #define pressurePin A4
 #define startPin  //this isn't attached yet

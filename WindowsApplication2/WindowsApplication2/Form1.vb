@@ -16,7 +16,6 @@ Public Class Form1
     Public rotPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
     Public relPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
 
-#Region "form events"
     ''' <summary>
     ''' close application and COM Port
     ''' </summary>
@@ -24,6 +23,7 @@ Public Class Form1
                                  ByVal e As System.Windows.Forms.FormClosedEventArgs) _
                                  Handles MyBase.FormClosed
         If comOpen Then SerialPort1.Close()
+
     End Sub
 
     ''' <summary>
@@ -40,6 +40,13 @@ Public Class Form1
         Next
         chartBoard.Series("Pick Points").ChartType = DataVisualization.Charting.SeriesChartType.Point
         chartBoard.ResetAutoValues()
+
+        numBoardAngle.Value = 1
+        numHeadAngleZero.Value = 1
+
+
+
+
         ' read avaiable COM Ports:
         Dim Portnames As String() = System.IO.Ports.SerialPort.GetPortNames
         If Portnames Is Nothing Then
@@ -62,7 +69,7 @@ Public Class Form1
 
             .ParityReplace = &H3B                    ' replace ";" when parity error occurs
             .PortName = cboComPort.Text
-            .BaudRate = CInt(cboBaudRate.Text)
+            .BaudRate = 9600
             .Parity = IO.Ports.Parity.None
             .DataBits = 8
             .StopBits = IO.Ports.StopBits.One
@@ -145,8 +152,6 @@ Public Class Form1
         Timer1.Enabled = False
     End Sub
 
-#End Region
-
 #Region "ComPort read data"
 
     ''' <summary>
@@ -198,6 +203,18 @@ Public Class Form1
     End Sub
 
     Private Sub numBoardAngle_ValueChanged(sender As Object, e As EventArgs) Handles numBoardAngle.ValueChanged
+        updategraps()
+
+    End Sub
+
+    Private Sub numHeadAngleZero_ValueChanged(sender As Object, e As EventArgs) Handles numHeadAngleZero.ValueChanged
+        updategraps()
+
+
+    End Sub
+
+    Sub updategraps()
+
         For i As Integer = 0 To 7 Step 1
             rtheta(i, 0) = Sqrt(initPoint(i, 0) ^ 2 + initPoint(i, 1) ^ 2)
             rtheta(i, 1) = Atan2(initPoint(i, 0), initPoint(i, 1))
@@ -222,14 +239,11 @@ Public Class Form1
         chartRot.ChartAreas(0).AxisY.Maximum = 4
         chartRot.ChartAreas(0).AxisY.Minimum = -4
 
-    End Sub
-
-    Private Sub numHeadAngleZero_ValueChanged(sender As Object, e As EventArgs) Handles numHeadAngleZero.ValueChanged
         Dim xoff As Double
         Dim yoff As Double
 
-        xoff = numArmRad.Value * Sin(numHeadAngleZero.Value / (360 / (2 * PI)))
-        yoff = numArmRad.Value * Cos(numHeadAngleZero.Value / (360 / (2 * PI)))
+        xoff = numArmRad.Value * Sin((numHeadAngleZero.Value / 2 - 45) / (360 / (2 * PI)))
+        yoff = numArmRad.Value * Cos((numHeadAngleZero.Value / 2 - 45) / (360 / (2 * PI)))
 
         For i As Integer = 0 To 7 Step 1
             relPoint(i, 0) = rotPoint(i, 0) + xoff
@@ -248,17 +262,90 @@ Public Class Form1
             chartRel.Series("Pick Points").Points.AddXY(relPoint(i, 0), relPoint(i, 1))
         Next
         chartRel.Series("Pick Points").ChartType = DataVisualization.Charting.SeriesChartType.Point
-        chartRel.ChartAreas(0).AxisX.Maximum = 8
-        chartRot.ChartAreas(0).AxisX.Minimum = 0
-        chartRot.ChartAreas(0).AxisY.Maximum = 8
-        chartRot.ChartAreas(0).AxisY.Minimum = 0
+        chartRel.ChartAreas(0).AxisX.Maximum = 5
+        chartRel.ChartAreas(0).AxisX.Minimum = -5
+        chartRel.ChartAreas(0).AxisY.Maximum = 8
+        chartRel.ChartAreas(0).AxisY.Minimum = 0
 
+        calcbitepos()
     End Sub
 
+    Sub calcbitepos()
+
+
+        ''calc and display raw bite locations in x and y
+        lstRawBitePos.Clear()
+        For i As Integer = 0 To 7
+            Dim tempstring As String
+            tempstring = "X: " & String.Format("{0:N3}", relPoint(i, 0)) & ", Y: " & String.Format("{0:N3}", relPoint(i, 1))
+            lstRawBitePos.Items.Add(tempstring)
+        Next
+        lstRawBitePos.View = View.SmallIcon
+
+        ''calculate and display robot positioning information for each pick posision
+        ''this algoritham assumed the robot starts with the arm at 90 deg to the robot. 
+
+        lstrobobitepos.Clear()
+        For i As Integer = 0 To 7
+
+            ''16 teeth on the pulley w/ pitch of .080" per tooth and 200 steps per revolution means .0064 inches per step.
+
+            'if original radius is less increase steps
+            If Sqrt(relPoint(i, 0) ^ 2 + relPoint(i, 1) ^ 2) < 6 Then
+
+                Dim stepdiff As Integer = 0
+
+                While ((relPoint(i, 1) + (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) < numArmRad.Value ^ 2
+                    stepdiff = stepdiff + 1
+                End While
+
+                Dim bitestep As Double
+                Dim biteangle As Double
+
+                bitestep = (numDistancetoCenter.Value) - stepdiff
+                biteangle = Atan2((relPoint(i, 1) + stepdiff * 0.0068), relPoint(i, 0))
+                biteangle = biteangle * (360 / (2 * PI))
+                biteangle = (biteangle - numBoardAngle.Value) * 2 + numBoardAngle.Value
+
+                Dim tempstring As String
+                tempstring = "Steps: " & String.Format("{0:0}", bitestep) & ", Angle: " & String.Format("{0:N1}", biteangle)
+                lstrobobitepos.Items.Add(tempstring)
+
+            End If
+            If Sqrt(relPoint(i, 0) ^ 2 + relPoint(i, 1) ^ 2) > 6 Then
+
+                Dim stepdiff As Integer = 0
+
+                While ((relPoint(i, 1) - (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) > numArmRad.Value ^ 2
+                    stepdiff = stepdiff + 1
+                End While
+
+                Dim bitestep As Double
+                Dim biteangle As Double
+
+
+                bitestep = (numDistancetoCenter.Value) + stepdiff
+                biteangle = Atan2((relPoint(i, 1) - stepdiff * 0.0068), relPoint(i, 0))
+                biteangle = biteangle * (360 / (2 * PI))
+
+                Dim tempstring As String
+                tempstring = "Steps: " & String.Format("{0:0}", bitestep) & ", Angle: " & String.Format("{0:N1}", biteangle)
+                lstrobobitepos.Items.Add(tempstring)
+
+
+
+            End If
+
+            lstrobobitepos.View = View.SmallIcon
+
+
+        Next
 
 
 
 
+
+    End Sub
 
 #End Region
 End Class

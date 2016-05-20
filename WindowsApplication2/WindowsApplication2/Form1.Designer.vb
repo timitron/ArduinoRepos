@@ -24,12 +24,12 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
-        Dim ChartArea7 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend3 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim ChartArea8 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Series5 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea9 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Series6 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.groupboxRobot = New System.Windows.Forms.GroupBox()
         Me.Label_CCecho = New System.Windows.Forms.Label()
         Me.picDataReceived = New System.Windows.Forms.PictureBox()
@@ -76,6 +76,10 @@ Partial Class Form1
         Me.Label5 = New System.Windows.Forms.Label()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.numBoardAngle = New System.Windows.Forms.NumericUpDown()
+        Me.lstRawBitePos = New System.Windows.Forms.ListView()
+        Me.lstrobobitepos = New System.Windows.Forms.ListView()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.Label9 = New System.Windows.Forms.Label()
         Me.groupboxRobot.SuspendLayout()
         CType(Me.picDataReceived, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picOpen, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -300,7 +304,7 @@ Partial Class Form1
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
         Me.GroupBox1.Location = New System.Drawing.Point(37, 202)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(376, 188)
+        Me.GroupBox1.Size = New System.Drawing.Size(376, 159)
         Me.GroupBox1.TabIndex = 1
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Robot Control"
@@ -320,7 +324,7 @@ Partial Class Form1
         Me.buttonManualMove.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
         Me.buttonManualMove.Location = New System.Drawing.Point(262, 43)
         Me.buttonManualMove.Name = "buttonManualMove"
-        Me.buttonManualMove.Size = New System.Drawing.Size(98, 40)
+        Me.buttonManualMove.Size = New System.Drawing.Size(98, 43)
         Me.buttonManualMove.TabIndex = 6
         Me.buttonManualMove.Text = "Manual Move"
         Me.buttonManualMove.UseVisualStyleBackColor = True
@@ -409,10 +413,10 @@ Partial Class Form1
         '
         Me.numArmRad.DecimalPlaces = 3
         Me.numArmRad.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!)
-        Me.numArmRad.Increment = New Decimal(New Integer() {1, 0, 0, 262144})
-        Me.numArmRad.Location = New System.Drawing.Point(203, 154)
-        Me.numArmRad.Maximum = New Decimal(New Integer() {10, 0, 0, 0})
-        Me.numArmRad.Minimum = New Decimal(New Integer() {3, 0, 0, 0})
+        Me.numArmRad.Increment = New Decimal(New Integer() {1, 0, 0, 131072})
+        Me.numArmRad.Location = New System.Drawing.Point(149, 116)
+        Me.numArmRad.Maximum = New Decimal(New Integer() {12, 0, 0, 0})
+        Me.numArmRad.Minimum = New Decimal(New Integer() {6, 0, 0, 0})
         Me.numArmRad.Name = "numArmRad"
         Me.numArmRad.Size = New System.Drawing.Size(77, 26)
         Me.numArmRad.TabIndex = 10
@@ -423,7 +427,7 @@ Partial Class Form1
         '
         Me.Label8.AutoSize = True
         Me.Label8.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
-        Me.Label8.Location = New System.Drawing.Point(79, 157)
+        Me.Label8.Location = New System.Drawing.Point(29, 124)
         Me.Label8.Name = "Label8"
         Me.Label8.Size = New System.Drawing.Size(114, 18)
         Me.Label8.TabIndex = 9
@@ -435,7 +439,7 @@ Partial Class Form1
         Me.TabControl1.Controls.Add(Me.tabRotatedboard)
         Me.TabControl1.Controls.Add(Me.tabRelativetoBot)
         Me.TabControl1.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
-        Me.TabControl1.Location = New System.Drawing.Point(6, 196)
+        Me.TabControl1.Location = New System.Drawing.Point(6, 148)
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
         Me.TabControl1.Size = New System.Drawing.Size(418, 381)
@@ -454,10 +458,10 @@ Partial Class Form1
         '
         'chartBoard
         '
-        ChartArea7.Name = "ChartArea1"
-        Me.chartBoard.ChartAreas.Add(ChartArea7)
-        Legend3.Name = "Legend1"
-        Me.chartBoard.Legends.Add(Legend3)
+        ChartArea1.Name = "ChartArea1"
+        Me.chartBoard.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.chartBoard.Legends.Add(Legend1)
         Me.chartBoard.Location = New System.Drawing.Point(3, 3)
         Me.chartBoard.Name = "chartBoard"
         Me.chartBoard.Size = New System.Drawing.Size(401, 341)
@@ -477,13 +481,13 @@ Partial Class Form1
         '
         'chartRot
         '
-        ChartArea8.Name = "ChartArea1"
-        Me.chartRot.ChartAreas.Add(ChartArea8)
+        ChartArea2.Name = "ChartArea1"
+        Me.chartRot.ChartAreas.Add(ChartArea2)
         Me.chartRot.Location = New System.Drawing.Point(7, 6)
         Me.chartRot.Name = "chartRot"
-        Series5.ChartArea = "ChartArea1"
-        Series5.Name = "Series1"
-        Me.chartRot.Series.Add(Series5)
+        Series1.ChartArea = "ChartArea1"
+        Series1.Name = "Series1"
+        Me.chartRot.Series.Add(Series1)
         Me.chartRot.Size = New System.Drawing.Size(397, 338)
         Me.chartRot.TabIndex = 1
         '
@@ -500,13 +504,13 @@ Partial Class Form1
         '
         'chartRel
         '
-        ChartArea9.Name = "ChartArea1"
-        Me.chartRel.ChartAreas.Add(ChartArea9)
+        ChartArea3.Name = "ChartArea1"
+        Me.chartRel.ChartAreas.Add(ChartArea3)
         Me.chartRel.Location = New System.Drawing.Point(7, 6)
         Me.chartRel.Name = "chartRel"
-        Series6.ChartArea = "ChartArea1"
-        Series6.Name = "Series1"
-        Me.chartRel.Series.Add(Series6)
+        Series2.ChartArea = "ChartArea1"
+        Series2.Name = "Series1"
+        Me.chartRel.Series.Add(Series2)
         Me.chartRel.Size = New System.Drawing.Size(397, 338)
         Me.chartRel.TabIndex = 1
         Me.chartRel.Text = "chartRel"
@@ -514,16 +518,17 @@ Partial Class Form1
         'numHeadAngleZero
         '
         Me.numHeadAngleZero.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!)
-        Me.numHeadAngleZero.Location = New System.Drawing.Point(203, 90)
+        Me.numHeadAngleZero.Location = New System.Drawing.Point(149, 87)
         Me.numHeadAngleZero.Maximum = New Decimal(New Integer() {180, 0, 0, 0})
         Me.numHeadAngleZero.Name = "numHeadAngleZero"
         Me.numHeadAngleZero.Size = New System.Drawing.Size(77, 26)
         Me.numHeadAngleZero.TabIndex = 6
+        Me.numHeadAngleZero.Value = New Decimal(New Integer() {90, 0, 0, 0})
         '
         'numDistancetoCenter
         '
         Me.numDistancetoCenter.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!)
-        Me.numDistancetoCenter.Location = New System.Drawing.Point(203, 58)
+        Me.numDistancetoCenter.Location = New System.Drawing.Point(149, 58)
         Me.numDistancetoCenter.Maximum = New Decimal(New Integer() {750, 0, 0, 0})
         Me.numDistancetoCenter.Minimum = New Decimal(New Integer() {100, 0, 0, 0})
         Me.numDistancetoCenter.Name = "numDistancetoCenter"
@@ -535,7 +540,7 @@ Partial Class Form1
         '
         Me.Label6.AutoSize = True
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
-        Me.Label6.Location = New System.Drawing.Point(79, 94)
+        Me.Label6.Location = New System.Drawing.Point(21, 90)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(122, 18)
         Me.Label6.TabIndex = 3
@@ -547,15 +552,15 @@ Partial Class Form1
         Me.Label5.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
         Me.Label5.Location = New System.Drawing.Point(35, 61)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(166, 18)
+        Me.Label5.Size = New System.Drawing.Size(108, 18)
         Me.Label5.TabIndex = 2
-        Me.Label5.Text = "Distance to center (stp):"
+        Me.Label5.Text = "Steps to center"
         '
         'Label4
         '
         Me.Label4.AutoSize = True
         Me.Label4.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
-        Me.Label4.Location = New System.Drawing.Point(92, 29)
+        Me.Label4.Location = New System.Drawing.Point(34, 31)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(109, 18)
         Me.Label4.TabIndex = 1
@@ -565,17 +570,56 @@ Partial Class Form1
         '
         Me.numBoardAngle.DecimalPlaces = 2
         Me.numBoardAngle.Font = New System.Drawing.Font("Microsoft Sans Serif", 12.0!)
-        Me.numBoardAngle.Location = New System.Drawing.Point(203, 26)
+        Me.numBoardAngle.Location = New System.Drawing.Point(149, 28)
         Me.numBoardAngle.Maximum = New Decimal(New Integer() {360, 0, 0, 0})
         Me.numBoardAngle.Name = "numBoardAngle"
         Me.numBoardAngle.Size = New System.Drawing.Size(77, 26)
         Me.numBoardAngle.TabIndex = 0
+        Me.numBoardAngle.Value = New Decimal(New Integer() {45, 0, 0, 0})
+        '
+        'lstRawBitePos
+        '
+        Me.lstRawBitePos.Location = New System.Drawing.Point(37, 399)
+        Me.lstRawBitePos.Name = "lstRawBitePos"
+        Me.lstRawBitePos.Size = New System.Drawing.Size(120, 161)
+        Me.lstRawBitePos.TabIndex = 4
+        Me.lstRawBitePos.UseCompatibleStateImageBehavior = False
+        '
+        'lstrobobitepos
+        '
+        Me.lstrobobitepos.Location = New System.Drawing.Point(179, 399)
+        Me.lstrobobitepos.Name = "lstrobobitepos"
+        Me.lstrobobitepos.Size = New System.Drawing.Size(218, 161)
+        Me.lstrobobitepos.TabIndex = 5
+        Me.lstrobobitepos.UseCompatibleStateImageBehavior = False
+        '
+        'Label7
+        '
+        Me.Label7.AutoSize = True
+        Me.Label7.Location = New System.Drawing.Point(43, 383)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(74, 13)
+        Me.Label7.TabIndex = 6
+        Me.Label7.Text = "Raw Bite Pos."
+        '
+        'Label9
+        '
+        Me.Label9.AutoSize = True
+        Me.Label9.Location = New System.Drawing.Point(201, 383)
+        Me.Label9.Name = "Label9"
+        Me.Label9.Size = New System.Drawing.Size(81, 13)
+        Me.Label9.TabIndex = 7
+        Me.Label9.Text = "Robot Bite Pos."
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(861, 630)
+        Me.Controls.Add(Me.Label9)
+        Me.Controls.Add(Me.Label7)
+        Me.Controls.Add(Me.lstrobobitepos)
+        Me.Controls.Add(Me.lstRawBitePos)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.buttonCompetition)
         Me.Controls.Add(Me.GroupBox1)
@@ -605,6 +649,7 @@ Partial Class Form1
         CType(Me.numDistancetoCenter, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.numBoardAngle, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -654,4 +699,8 @@ Partial Class Form1
     Friend WithEvents chartRel As DataVisualization.Charting.Chart
     Friend WithEvents numArmRad As NumericUpDown
     Friend WithEvents Label8 As Label
+    Friend WithEvents lstRawBitePos As ListView
+    Friend WithEvents lstrobobitepos As ListView
+    Friend WithEvents Label7 As Label
+    Friend WithEvents Label9 As Label
 End Class
