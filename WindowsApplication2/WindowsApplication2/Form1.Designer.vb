@@ -24,12 +24,12 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
-        Dim ChartArea10 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim ChartArea11 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Series7 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea12 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Series8 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.groupboxRobot = New System.Windows.Forms.GroupBox()
         Me.txtSerialText = New System.Windows.Forms.TextBox()
         Me.Label_CCecho = New System.Windows.Forms.Label()
@@ -440,10 +440,10 @@ Partial Class Form1
         '
         'chartBoard
         '
-        ChartArea10.Name = "ChartArea1"
-        Me.chartBoard.ChartAreas.Add(ChartArea10)
-        Legend4.Name = "Legend1"
-        Me.chartBoard.Legends.Add(Legend4)
+        ChartArea1.Name = "ChartArea1"
+        Me.chartBoard.ChartAreas.Add(ChartArea1)
+        Legend1.Name = "Legend1"
+        Me.chartBoard.Legends.Add(Legend1)
         Me.chartBoard.Location = New System.Drawing.Point(3, 3)
         Me.chartBoard.Name = "chartBoard"
         Me.chartBoard.Size = New System.Drawing.Size(401, 341)
@@ -463,13 +463,13 @@ Partial Class Form1
         '
         'chartRot
         '
-        ChartArea11.Name = "ChartArea1"
-        Me.chartRot.ChartAreas.Add(ChartArea11)
+        ChartArea2.Name = "ChartArea1"
+        Me.chartRot.ChartAreas.Add(ChartArea2)
         Me.chartRot.Location = New System.Drawing.Point(7, 6)
         Me.chartRot.Name = "chartRot"
-        Series7.ChartArea = "ChartArea1"
-        Series7.Name = "Series1"
-        Me.chartRot.Series.Add(Series7)
+        Series1.ChartArea = "ChartArea1"
+        Series1.Name = "Series1"
+        Me.chartRot.Series.Add(Series1)
         Me.chartRot.Size = New System.Drawing.Size(397, 338)
         Me.chartRot.TabIndex = 1
         '
@@ -486,13 +486,13 @@ Partial Class Form1
         '
         'chartRel
         '
-        ChartArea12.Name = "ChartArea1"
-        Me.chartRel.ChartAreas.Add(ChartArea12)
+        ChartArea3.Name = "ChartArea1"
+        Me.chartRel.ChartAreas.Add(ChartArea3)
         Me.chartRel.Location = New System.Drawing.Point(7, 6)
         Me.chartRel.Name = "chartRel"
-        Series8.ChartArea = "ChartArea1"
-        Series8.Name = "Series1"
-        Me.chartRel.Series.Add(Series8)
+        Series2.ChartArea = "ChartArea1"
+        Series2.Name = "Series1"
+        Me.chartRel.Series.Add(Series2)
         Me.chartRel.Size = New System.Drawing.Size(397, 338)
         Me.chartRel.TabIndex = 1
         Me.chartRel.Text = "chartRel"

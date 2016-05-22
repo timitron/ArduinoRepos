@@ -179,13 +179,10 @@ Public Class Form1
 
     Private Sub numBoardAngle_ValueChanged(sender As Object, e As EventArgs) Handles numBoardAngle.ValueChanged
         updategraps()
-
     End Sub
 
     Private Sub numHeadAngleZero_ValueChanged(sender As Object, e As EventArgs) Handles numHeadAngleZero.ValueChanged
         updategraps()
-
-
     End Sub
 
     Delegate Sub myMethodDelegate(ByVal [text] As String)
@@ -371,6 +368,34 @@ Public Class Form1
             MsgBox("Value out of range" & vbCrLf & ex.Message)
         End Try
 
+
+    End Sub
+
+    Private Sub buttonCompetition_Click(sender As Object, e As EventArgs) Handles buttonCompetition.Click
+        ''needs to select a fishing position and send info to the robot then wait for the request for another fish. 
+        Dim pick As Integer
+        Dim commandString As String = ""
+
+        For i As Integer = 0 To 15 Step 1
+            pick = CInt(Math.Ceiling(Rnd() * 7)) + 1
+
+            If (numXstep.Value <= 750) Then
+                numXstep.Value = Math.Round(stepAngle(pick, 0))
+                numHeadAngle.Value = Math.Round(stepAngle(pick, 1))
+            End If
+
+            commandString = "<C"
+            commandString &= String.Format("{0:000}", numXstep.Value)
+            commandString &= String.Format("{0:000}", numHeadAngle.Value)
+            commandString &= String.Format("{0:000}", 0)
+            commandString &= ">"
+            tbTx.Text = commandString
+            button_send_Click()
+
+            SerialPort1.ReadLine()
+
+
+        Next
 
     End Sub
 

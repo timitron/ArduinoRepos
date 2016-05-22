@@ -15,15 +15,8 @@
 ////////////////////////////////////////////////////
 //////board game defines/////////
 ////////////////////////////////////////////////////
-#define boardHeight 90    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
-#define boardAngle 100    //The angle the board is rotated off of zero
-#define headAngle 98      //the angle of the head when fishing hook is centered on the board
-#define tableHeight 160   //this is the angle at which the robot should drop fish off
 #define unloadAngle 0     //this is the angle at which the head is moved to in order to unload a fish
 #define xunloadPos  25    //the step position of the x carriage for unloading 
-#define fishdiff 65
-#define fishtimeout 10
-
 
 /////////////////////////////////////////////
 ////inputs and output pins////
@@ -141,6 +134,10 @@ boolean debug = false;
 const byte numChars = 20;
 char receivedChars[numChars];
 boolean newData = false;
+int boardHeight = 90;    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
+int tableHeight = 160;   //this is the angle at which the robot should drop fish off
+int fishdiff = 65;
+int fishtimeout = 10;
 
 void setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV4);
@@ -233,7 +230,7 @@ void loop() {
           { //checking for cancel button press
             waiting(12, xx, yy);
             TSPoint pp = ts.getPoint();      // See if there's any  touch data for us
-            if ((pp.z > MINPRESSURE) && (pp.z < MAXPRESSURE)) // if there was a press swas is cancel? 
+            if ((pp.z > MINPRESSURE) && (pp.z < MAXPRESSURE)) // if there was a press swas is cancel?
             {
               pp.x = map(pp.x, TS_MINY, TS_MAXY, 0, tft.height());
               pp.y = map(pp.y, TS_MINX, TS_MAXX, 0, tft.width());
@@ -284,9 +281,8 @@ void loop() {
             iscrn = 0;                                                 //avoid a memory overflow
             selected = 2;
           }
-          while ( (Serial.available() < 3) and (cancel == 0))
+          while ( (Serial.available() < 1) and (cancel == 0))
           {
-            waiting(12, xx, yy);
             TSPoint pp = ts.getPoint();      // See if there's any  touch data for us
             if ((pp.z > MINPRESSURE) && (pp.z < MAXPRESSURE))
             {
@@ -313,36 +309,55 @@ void loop() {
 
       }
     }
+    
     if ((x > BUTTONCOMPETITION_X) && (x < (BUTTONCOMPETITION_X + BUTTONCOMPETITION_W)))    {
       if ((y > BUTTONCOMPETITION_Y) && (y <= (BUTTONCOMPETITION_Y + BUTTONCOMPETITION_H)))      {
-        do {                    // do something over and over again until someone hits cancel
+        do
+        { // do something over and over again until someone hits cancel
           cancel = 0;
           if (menuString == "")
           {
             menuString = "Competition Mode";
             subdisplay();
+            tft.setCursor(0, 50);
+            tft.setTextSize(1);
+            tft.setTextColor(ILI9341_ORANGE);
+            iscrn = 0;                                                 //avoid a memory overflow
             selected = 3;
+                                      xx = tft.getCursorX();
+              yy = tft.getCursorY();
           }
-          p = ts.getPoint();      // See if there's any  touch data for us
-          if ((p.z > MINPRESSURE) && (p.z < MAXPRESSURE))
-          {
-            p.x = map(p.x, TS_MINY, TS_MAXY, 0, tft.height());
-            p.y = map(p.y, TS_MINX, TS_MAXX, 0, tft.width());
-            int y = tft.height() - p.x;
-            int x = p.y;
-            if ((x > 20) && (x < 300))
+          while ( (Serial.available() < 1) and (cancel == 0))
+          { //checking for cancel button press
+
+            waiting(12, xx, yy);
+            TSPoint pp = ts.getPoint();      // See if there's any  touch data for us
+            if ((pp.z > MINPRESSURE) && (pp.z < MAXPRESSURE)) // if there was a press swas is cancel?
             {
-              if ((y > 180) && (y <= 210))
+              pp.x = map(pp.x, TS_MINY, TS_MAXY, 0, tft.height());
+              pp.y = map(pp.y, TS_MINX, TS_MAXX, 0, tft.width());
+              int y = tft.height() - pp.x;
+              int x = pp.y;
+              if ((x > 20) && (x < 300))
               {
-                cancel = 1;
+                if ((y > 180) && (y <= 210))
+                {
+                  cancel = 1;
+                }
               }
             }
           }
-          //// run competition code here
+          if (cancel == 0)
+          {
+            recvWithStartEndMarkers();
 
+            if (newData)
+            {
+              parseData();
+            }
 
+          }
         } while (cancel == 0);
-
       }
     }
     if ((x > BUTTONDEBUG_X) && (x < (BUTTONDEBUG_X + BUTTONDEBUG_W)))    {
@@ -386,7 +401,7 @@ void loop() {
           if (cancel == 0)
           {
 
-recvWithStartEndMarkers();
+            recvWithStartEndMarkers();
 
             if (newData)
             {
@@ -597,7 +612,9 @@ int fishing(int steps, int angle) {
 
   //  RoboMove(300, 90, 0);
   //  delay(50);
-  tft.print("Fishing");
+  if (selected != 3){  tft.print("Fishing");} 
+  
+
   RoboMove(steps, angle, (boardHeight - 15));
   delay(600);                                                              //settling time for the fishing rod
   nofish = analogRead(pressurePin);
@@ -804,101 +821,123 @@ void parseData()
 
   if (receivedChars[0] == 'F'  )
   {
-    fishing(convertToNumber( 1 ), convertToNumber( 4 ));
+    tft.print(convertToNumber( 1 ));
+
   }
 
   if (receivedChars[0] == 'M'  )
   {
+    tft.print(convertToNumber( 1 ));
     RoboMove(convertToNumber( 1  ), convertToNumber( 4 ), convertToNumber( 7 ));
   }
 
-
-
-  if (strcmp(receivedChars, "DON")  == 0)
+  if (receivedChars[0] == 'Z'  )
   {
-    if ( receivedChars[1] == 'O'  && receivedChars[2] == 'F' )  {
-      //do something else
-    }
+    zeroX();
   }
-  if (strcmp(receivedChars, "DOF")  == 0)
+
+  if (receivedChars[0] == 'H'  )
   {
-    //do someting
+    tft.println();
+    tft.print("Board Height Set: ");
+    tft.print(convertToNumber( 1 ));
+    boardHeight = convertToNumber( 1  );
+    tft.print(" Table Height Set: ");
+    tft.println(convertToNumber( 4 ));
+    tableHeight = convertToNumber( 4 );
   }
+
+  if (receivedChars[0] == 'J'  )
+  {
+    tft.println();
+    tft.print("Fish Pressure Difference Set: ");
+    tft.print(convertToNumber( 1 ));
+    fishdiff = convertToNumber( 1  );
+    tft.print(" Fishing attempt timeout Set: ");
+    tft.println(convertToNumber( 4 ));
+    tableHeight = convertToNumber( 4 );
+  }
+  if ((receivedChars[0] == 'C') && (selected == 3))
+  {
+    //while (1 == 1) //put a check for the game start pin here
+
+      fishing(convertToNumber( 1 ), convertToNumber( 4 ));
+      Serial.println("Next Pos?");
 }
-
-
-
-
-void recvWithStartEndMarkers()
-{
-
-  // function recvWithStartEndMarkers by Robin2 of the Arduino forums
-  // See  http://forum.arduino.cc/index.php?topic=288234.0
-
-  static boolean recvInProgress = false;
-  static byte ndx = 0;
-  char startMarker = '<';
-  char endMarker = '>';
-
-  char rc;
-
-  if (Serial.available() > 0)
+}
+  void recvWithStartEndMarkers()
   {
-    rc = Serial.read();
 
-    if (recvInProgress == true)
+    // function recvWithStartEndMarkers by Robin2 of the Arduino forums
+    // See  http://forum.arduino.cc/index.php?topic=288234.0
+
+    static boolean recvInProgress = false;
+    static byte ndx = 0;
+    char startMarker = '<';
+    char endMarker = '>';
+
+    char rc;
+
+    if (Serial.available() > 0)
     {
-      if (rc != endMarker)
+      rc = Serial.read();
+
+      if (recvInProgress == true)
       {
-        receivedChars[ndx] = rc;
-        ndx++;
-        if (ndx >= numChars) {
-          ndx = numChars - 1;
+        if (rc != endMarker)
+        {
+          receivedChars[ndx] = rc;
+          ndx++;
+          if (ndx >= numChars) {
+            ndx = numChars - 1;
+          }
+        }
+        else
+        {
+          receivedChars[ndx] = '\0'; // terminate the string
+          recvInProgress = false;
+          ndx = 0;
+          newData = true;
         }
       }
-      else
-      {
-        receivedChars[ndx] = '\0'; // terminate the string
-        recvInProgress = false;
-        ndx = 0;
-        newData = true;
+
+      else if (rc == startMarker) {
+        recvInProgress = true;
       }
     }
 
-    else if (rc == startMarker) {
-      recvInProgress = true;
-    }
   }
 
-}
+
+
+  /*********************
+    converts 3 ascii characters to a numeric value
+
+    Global:
+     Expects receivedChars[] to contain the ascii characters
+
+    Local:
+     startPos is the position of the first character
+
+
+  */
+
+  int convertToNumber( byte startPos)
+  {
+    unsigned int tmp = 0;
+    tmp = (receivedChars[startPos] - 48) * 100;
+    tmp = tmp + (receivedChars[startPos + 1] - 48) * 10;
+    tmp = tmp + receivedChars[startPos + 2] - 48;
+    return tmp;
+  }
 
 
 
-/*********************
-  converts 3 ascii characters to a numeric value
-
-  Global:
-   Expects receivedChars[] to contain the ascii characters
-
-  Local:
-   startPos is the position of the first character
-
-
-*/
-
-int convertToNumber( byte startPos)
-{
-  unsigned int tmp = 0;
-  tmp = (receivedChars[startPos] - 48) * 100;
-  tmp = tmp + (receivedChars[startPos + 1] - 48) * 10;
-  tmp = tmp + receivedChars[startPos + 2] - 48;
-  return tmp;
-}
+  void sendOK(int val)
+  {
+    // The 3 command buttons wait for the OK signal
+    Serial.print("OK"); Serial.println(val);
+  }
 
 
 
-void sendOK(int val)
-{
-  // The 3 command buttons wait for the OK signal
-  Serial.print("OK"); Serial.println(val);
-}
