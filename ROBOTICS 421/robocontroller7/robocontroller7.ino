@@ -15,13 +15,13 @@
 ////////////////////////////////////////////////////
 //////board game defines/////////
 ////////////////////////////////////////////////////
-#define boardHeight 110    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
+#define boardHeight 90    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
 #define boardAngle 100    //The angle the board is rotated off of zero
 #define headAngle 98      //the angle of the head when fishing hook is centered on the board
 #define tableHeight 160   //this is the angle at which the robot should drop fish off
 #define unloadAngle 0     //this is the angle at which the head is moved to in order to unload a fish
 #define xunloadPos  25    //the step position of the x carriage for unloading 
-#define fishdiff 80
+#define fishdiff 65
 #define fishtimeout 10
 
 
@@ -182,7 +182,7 @@ void setup() {
 
   //yield();
   //bmpDraw("splash.bmp", 0, 0);
-  modeselect();
+modeselect();
 }
 void loop() {
 
@@ -404,8 +404,9 @@ void loop() {
   }
   menuString == "";
   selected = 0;
-}
 
+
+}
 int zeroX() { //zeros the x axis of the robot with the micro switch
 
   pinMode(42, INPUT);
@@ -598,9 +599,9 @@ int fishing(int steps, int angle) {
   //  delay(50);
   tft.print("Fishing");
   RoboMove(steps, angle, (boardHeight - 15));
-  delay(1900);                                                              //settling time for the fishing rod
+  delay(600);                                                              //settling time for the fishing rod
   nofish = analogRead(pressurePin);
-  delay(100);
+  delay(150);
   if (selected == 4)
   {
     tft.println();
@@ -618,18 +619,18 @@ int fishing(int steps, int angle) {
   int temp;
   do
   {
-
+    HeadAngle.write((angle), headVel);
     delay(750);
     //fishing rod up and down
     Height.write((boardHeight + 25), (heightVel * 2));                                      // move servo to target position at height velocity defined above.
-    delay(200);
+    delay(275);
 
     //fish pull
     Height.write((boardHeight - 40), 200);                                      // move servo to target position at height velocity defined above.
     HeadAngle.write((angle + 3), headVel);
     fishcount++;
     temp = analogRead(pressurePin);
-    delay(100);
+    delay(200);
     temp = nofish - temp;
     if (selected == 4)
     {

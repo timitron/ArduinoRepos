@@ -11,7 +11,7 @@ Public Class Form1
     Private ByteToRead As Integer
     Private byteEnd(2) As Char
     Private comOpen As Boolean
-    Public initPoint As Double(,) = {{-0.41732, -0.68464}, {0.9354, -0.2459}, {1.97807, -1.207}, {1.62212, -2.6591}, {1.17214, 1.05198}, {-1.3192, 0.279}, {0.02279, 2.14064}, {-1.8499, 2.23004}}
+    Public initPoint As Double(,) = {{0.41732, -0.68464}, {-0.9354, -0.2459}, {-1.97807, -1.207}, {-1.62212, -2.6591}, {-1.17214, 1.05198}, {1.3192, 0.279}, {-0.02279, 2.14064}, {1.8499, 2.23004}}
     Public rtheta As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
     Public rotPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
     Public relPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
@@ -42,7 +42,9 @@ Public Class Form1
         chartBoard.ResetAutoValues()
 
         numBoardAngle.Value = 1
-        numHeadAngleZero.Value = 1
+        numHeadAngleZero.Value = 90
+        numArmRad.Value = 10
+        numDistancetoCenter.Value = 500
 
 
 
@@ -262,9 +264,9 @@ Public Class Form1
             chartRel.Series("Pick Points").Points.AddXY(relPoint(i, 0), relPoint(i, 1))
         Next
         chartRel.Series("Pick Points").ChartType = DataVisualization.Charting.SeriesChartType.Point
-        chartRel.ChartAreas(0).AxisX.Maximum = 5
-        chartRel.ChartAreas(0).AxisX.Minimum = -5
-        chartRel.ChartAreas(0).AxisY.Maximum = 8
+        chartRel.ChartAreas(0).AxisX.Maximum = 6
+        chartRel.ChartAreas(0).AxisX.Minimum = -6
+        chartRel.ChartAreas(0).AxisY.Maximum = 13
         chartRel.ChartAreas(0).AxisY.Minimum = 0
 
         calcbitepos()
@@ -291,33 +293,34 @@ Public Class Form1
             ''16 teeth on the pulley w/ pitch of .080" per tooth and 200 steps per revolution means .0064 inches per step.
 
             'if original radius is less increase steps
-            If Sqrt(relPoint(i, 0) ^ 2 + relPoint(i, 1) ^ 2) < 6 Then
+            If Sqrt(relPoint(i, 0) ^ 2 + relPoint(i, 1) ^ 2) < numArmRad.Value Then   ''if the radius of the current point is closer than the radius of the arm
 
                 Dim stepdiff As Integer = 0
 
-                While ((relPoint(i, 1) + (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) < numArmRad.Value ^ 2
+                While (((relPoint(i, 1) + (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) < (numArmRad.Value ^ 2)) ''while the radius of the point is less than the
                     stepdiff = stepdiff + 1
                 End While
+                stepdiff = stepdiff - 1
 
                 Dim bitestep As Double
                 Dim biteangle As Double
 
                 bitestep = (numDistancetoCenter.Value) - stepdiff
-                biteangle = Atan2((relPoint(i, 1) + stepdiff * 0.0068), relPoint(i, 0))
+                biteangle = Atan2(relPoint(i, 0), (relPoint(i, 1) + (stepdiff * 0.0064)))
                 biteangle = biteangle * (360 / (2 * PI))
-                biteangle = (biteangle - numBoardAngle.Value) * 2 + numBoardAngle.Value
+                biteangle = (numHeadAngleZero.Value + biteangle * 2)
 
                 Dim tempstring As String
                 tempstring = "Steps: " & String.Format("{0:0}", bitestep) & ", Angle: " & String.Format("{0:N1}", biteangle)
                 lstrobobitepos.Items.Add(tempstring)
 
             End If
-            If Sqrt(relPoint(i, 0) ^ 2 + relPoint(i, 1) ^ 2) > 6 Then
+            If Sqrt(relPoint(i, 0) ^ 2 + relPoint(i, 1) ^ 2) > numArmRad.Value Then ''if radius of point is greater than radius of arm.
 
                 Dim stepdiff As Integer = 0
 
-                While ((relPoint(i, 1) - (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) > numArmRad.Value ^ 2
-                    stepdiff = stepdiff + 1
+                While (((relPoint(i, 1) - (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) > numArmRad.Value ^ 2)   ''while the radius of the point is greater than the radius of the arm
+                    stepdiff = stepdiff + 1         ''increase step diff and recalc radius of point
                 End While
 
                 Dim bitestep As Double
@@ -325,8 +328,9 @@ Public Class Form1
 
 
                 bitestep = (numDistancetoCenter.Value) + stepdiff
-                biteangle = Atan2((relPoint(i, 1) - stepdiff * 0.0068), relPoint(i, 0))
+                biteangle = Atan2(relPoint(i, 0), (relPoint(i, 1) - (stepdiff * 0.0064)))
                 biteangle = biteangle * (360 / (2 * PI))
+                biteangle = (numHeadAngleZero.Value + biteangle * 2)
 
                 Dim tempstring As String
                 tempstring = "Steps: " & String.Format("{0:0}", bitestep) & ", Angle: " & String.Format("{0:N1}", biteangle)
