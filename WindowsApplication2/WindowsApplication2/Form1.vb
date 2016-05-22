@@ -1,11 +1,14 @@
-﻿Option Strict On
-Option Infer On
+﻿Option Infer On
 Imports System.Math
+Imports System.IO
+Imports System.IO.Ports
+Imports System.Threading
+
+
 Public Class Form1
 
-
-
-
+    Shared _continue As Boolean
+    Dim WithEvents SerialPort As New IO.Ports.SerialPort
     Private readBuffer As String = String.Empty
     Private Bytenumber As Integer
     Private ByteToRead As Integer
@@ -15,6 +18,7 @@ Public Class Form1
     Public rtheta As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
     Public rotPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
     Public relPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
+    Public stepAngle As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
 
     ''' <summary>
     ''' close application and COM Port
@@ -80,7 +84,7 @@ Public Class Form1
             .ReceivedBytesThreshold = 1             'threshold: one byte in buffer > event is fired
             .NewLine = vbCr         ' CR must be the last char in frame. This terminates the SerialPort.readLine
             .ReadTimeout = 10000
-
+            SerialPort1.Encoding = System.Text.Encoding.Default 'very important!
         End With
 
         ' check whether device is avaiable:
@@ -117,25 +121,25 @@ Public Class Form1
         cboBaudRate.Enabled = True
     End Sub
 
-    ''' <summary>
-    ''' clear TextBoxes
-    ''' </summary>
-    Private Sub Button_clear_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnClear.Click
-        tbRx.Text = String.Empty
-        tbTx.Text = String.Empty
-    End Sub
 
     ''' <summary>
     ''' write content of Textbox to Port
     ''' </summary>
-    Private Sub button_send_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSend.Click
-        If comOpen Then SerialPort1.WriteLine(tbTx.Text)
+    Public Sub button_send_Click() Handles btnSend.Click
+
+        If SerialPort1.IsOpen Then
+            'SerialPort.Write(Chr(1) & Chr(90) & Chr(48) & Chr(57) & Chr(48)) 'txtSendData.Text)
+            SerialPort1.Write(tbTx.Text)
+        End If
+
+
+
     End Sub
 
     ''' <summary>
     ''' close app
     ''' </summary>
-    Private Sub Button_ende_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnExit.Click
+    Private Sub Button_ende_Click(ByVal sender As System.Object, ByVal e As System.EventArgs)
         If comOpen Then
             ' clear input buffer
             SerialPort1.DiscardInBuffer()
@@ -159,46 +163,15 @@ Public Class Form1
     ''' <summary>
     ''' async read on secondary thread
     ''' </summary>
-    Private Sub SerialPort1_DataReceived(ByVal sender As System.Object,
-                                         ByVal e As System.IO.Ports.SerialDataReceivedEventArgs) _
-                                         Handles SerialPort1.DataReceived
-        If comOpen Then
-            Try
-                byteEnd = SerialPort1.NewLine.ToCharArray
-
-                ' get number off bytes in buffer
-                Bytenumber = SerialPort1.BytesToRead
-
-                ' read one byte from buffer
-                'ByteToRead = SerialPort1.ReadByte()
-
-                ' read one char from buffer
-                'CharToRead = SerialPort1.ReadChar()
-
-                ' read until string "90"
-                'readBuffer1 = SerialPort1.ReadTo("90")
-
-                ' read entire string until .Newline 
-                readBuffer = SerialPort1.ReadLine()
-
-                'data to UI thread
-                Me.Invoke(New EventHandler(AddressOf DoUpdate))
-
-            Catch ex As Exception
-                MsgBox("read " & ex.Message)
-            End Try
-        End If
+    Private Sub SerialPort1_DataReceived(ByVal sender As Object, ByVal e As System.IO.Ports.SerialDataReceivedEventArgs) Handles SerialPort1.DataReceived
+        Dim str As String = SerialPort1.ReadExisting
+        Invoke(myD1, str)
     End Sub
 
     ''' <summary>
     ''' update received string in UI
     ''' </summary>
     ''' <remarks></remarks>
-    Public Sub DoUpdate(ByVal sender As Object, ByVal e As System.EventArgs)
-        tbRx.Text = readBuffer
-        picDataReceived.BackColor = Color.Green
-        Timer1.Enabled = True
-    End Sub
 
     Private Sub cboBaudRate_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboBaudRate.SelectedIndexChanged
 
@@ -214,6 +187,14 @@ Public Class Form1
 
 
     End Sub
+
+    Delegate Sub myMethodDelegate(ByVal [text] As String)
+    Dim myD1 As New myMethodDelegate(AddressOf myShowStringMethod)
+
+    Sub myShowStringMethod(ByVal myString As String)
+        txtSerialText.AppendText(myString)
+    End Sub
+
 
     Sub updategraps()
 
@@ -310,6 +291,9 @@ Public Class Form1
                 biteangle = biteangle * (360 / (2 * PI))
                 biteangle = (numHeadAngleZero.Value + biteangle * 2)
 
+                stepAngle(i, 0) = bitestep
+                stepAngle(i, 1) = biteangle
+
                 Dim tempstring As String
                 tempstring = "Steps: " & String.Format("{0:0}", bitestep) & ", Angle: " & String.Format("{0:N1}", biteangle)
                 lstrobobitepos.Items.Add(tempstring)
@@ -332,6 +316,9 @@ Public Class Form1
                 biteangle = biteangle * (360 / (2 * PI))
                 biteangle = (numHeadAngleZero.Value + biteangle * 2)
 
+                stepAngle(i, 0) = bitestep
+                stepAngle(i, 1) = biteangle
+
                 Dim tempstring As String
                 tempstring = "Steps: " & String.Format("{0:0}", bitestep) & ", Angle: " & String.Format("{0:N1}", biteangle)
                 lstrobobitepos.Items.Add(tempstring)
@@ -340,7 +327,7 @@ Public Class Form1
 
             End If
 
-            lstrobobitepos.View = View.SmallIcon
+
 
 
         Next
@@ -350,6 +337,44 @@ Public Class Form1
 
 
     End Sub
+
+
+    Private Sub buttonManualMove_Click(sender As Object, e As EventArgs) Handles buttonManualMove.Click
+        Dim commandString As String
+        commandString = "<M"
+        commandString &= String.Format("{0:000}", numXstep.Value)
+        commandString &= String.Format("{0:000}", numHeadAngle.Value)
+        commandString &= String.Format("{0:000}", numHeight.Value)
+        commandString &= ">"
+        tbTx.Text = commandString
+        button_send_Click()
+    End Sub
+
+    Private Sub buttonFish_Click(sender As Object, e As EventArgs) Handles buttonFish.Click
+        Dim commandString As String
+        commandString = "<F"
+        commandString &= String.Format("{0:000}", numXstep.Value)
+        commandString &= String.Format("{0:000}", numHeadAngle.Value)
+        commandString &= String.Format("{0:000}", 0)
+        commandString &= ">"
+        tbTx.Text = commandString
+        button_send_Click()
+    End Sub
+
+    Private Sub lstrobobitepos_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lstrobobitepos.SelectedIndexChanged
+        Try
+
+            Dim temp As Integer = lstrobobitepos.SelectedIndices(0)
+            numXstep.Value = Math.Round(stepAngle(temp, 0))
+            numHeadAngle.Value = Math.Round(stepAngle(temp, 1))
+        Catch ex As Exception
+            MsgBox("Value out of range" & vbCrLf & ex.Message)
+        End Try
+
+
+    End Sub
+
+
 
 #End Region
 End Class

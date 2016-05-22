@@ -26,12 +26,7 @@ WindowsApplication2
  close ComPort
  </summary>
 </member>
-<member name="M:WindowsApplication2.Form1.Button_clear_Click(System.Object,System.EventArgs)">
- <summary>
- clear TextBoxes
- </summary>
-</member>
-<member name="M:WindowsApplication2.Form1.button_send_Click(System.Object,System.EventArgs)">
+<member name="M:WindowsApplication2.Form1.button_send_Click">
  <summary>
  write content of Textbox to Port
  </summary>
@@ -51,7 +46,7 @@ WindowsApplication2
  async read on secondary thread
  </summary>
 </member>
-<member name="M:WindowsApplication2.Form1.DoUpdate(System.Object,System.EventArgs)">
+<member name="M:WindowsApplication2.Form1.cboBaudRate_SelectedIndexChanged(System.Object,System.EventArgs)">
  <summary>
  update received string in UI
  </summary>

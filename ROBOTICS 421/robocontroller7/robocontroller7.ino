@@ -136,6 +136,11 @@ String menuString = "";
 int xx;
 int yy;
 int selected = 0;
+char incomingByte = 0;
+boolean debug = false;
+const byte numChars = 20;
+char receivedChars[numChars];
+boolean newData = false;
 
 void setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV4);
@@ -182,7 +187,7 @@ void setup() {
 
   //yield();
   //bmpDraw("splash.bmp", 0, 0);
-modeselect();
+  modeselect();
 }
 void loop() {
 
@@ -224,11 +229,11 @@ void loop() {
             iscrn = 0;                                                 //avoid a memory overflow
             selected = 1;
           }
-          while ( (Serial.available() < 3) and (cancel == 0))
-          {
+          while ( (Serial.available() < 1) and (cancel == 0))
+          { //checking for cancel button press
             waiting(12, xx, yy);
             TSPoint pp = ts.getPoint();      // See if there's any  touch data for us
-            if ((pp.z > MINPRESSURE) && (pp.z < MAXPRESSURE))
+            if ((pp.z > MINPRESSURE) && (pp.z < MAXPRESSURE)) // if there was a press swas is cancel? 
             {
               pp.x = map(pp.x, TS_MINY, TS_MAXY, 0, tft.height());
               pp.y = map(pp.y, TS_MINX, TS_MAXX, 0, tft.width());
@@ -243,18 +248,19 @@ void loop() {
               }
             }
           }
-          tft.println();
           checkscreen();
           if (cancel == 0)
           {
-            for (int n = 0; n < 3; n++)
+            recvWithStartEndMarkers();
+
+            if (newData)
             {
-              reqpos[n] = Serial.parseInt(); // Then: Get them.
+              parseData();
+              tft.print("Waiting for inputs...");
+              xx = tft.getCursorX();
+              yy = tft.getCursorY();
             }
-            fishing(reqpos[0], reqpos[1]);
-            tft.print("Waiting on inputs");
-            xx = tft.getCursorX();
-            yy = tft.getCursorY();
+
           }
         } while (cancel == 0);
       }
@@ -274,8 +280,7 @@ void loop() {
             tft.setTextSize(1);
             tft.setTextColor(ILI9341_ORANGE);
             tft.print("Waiting on inputs");
-            xx = tft.getCursorX();
-            yy = tft.getCursorY();
+
             iscrn = 0;                                                 //avoid a memory overflow
             selected = 2;
           }
@@ -302,15 +307,7 @@ void loop() {
           checkscreen();
           if (cancel == 0)
           {
-            for (int n = 0; n < 3; n++)
-            {
-              reqpos[n] = Serial.parseInt(); // Then: Get them.
-            }
-            tft.print("parsed: ");
-            RoboMove(reqpos[0], reqpos[1], reqpos[2]);
-            tft.print("Waiting on inputs");
-            xx = tft.getCursorX();
-            yy = tft.getCursorY();
+
           }
         } while (cancel == 0);
 
@@ -366,7 +363,7 @@ void loop() {
             iscrn = 0;                                                 //avoid a memory overflow
             selected = 4;
           }
-          while ( (Serial.available() < 3) and (cancel == 0))
+          while ( (Serial.available() < 1) and (cancel == 0))
           {
             waiting(12, xx, yy);
             TSPoint pp = ts.getPoint();      // See if there's any  touch data for us
@@ -385,18 +382,21 @@ void loop() {
               }
             }
           }
-          tft.println();
           checkscreen();
           if (cancel == 0)
           {
-            for (int n = 0; n < 3; n++)
+
+recvWithStartEndMarkers();
+
+            if (newData)
             {
-              reqpos[n] = Serial.parseInt(); // Then: Get them.
+              parseData();
+              tft.print("Waiting for inputs...");
+              xx = tft.getCursorX();
+              yy = tft.getCursorY();
             }
-            fishing(reqpos[0], reqpos[1]);
-            tft.print("Waiting on inputs");
-            xx = tft.getCursorX();
-            yy = tft.getCursorY();
+
+
           }
         } while (cancel == 0);
       }
@@ -559,14 +559,14 @@ int waitforX() {                  //waits for the stepper motor to no longer be 
   iscrn = 0;                                                 //avoid a memory overflow
   while (XStepper.busyCheck() == 1)
   {
-        if (selected == 4)
-        {
-    waiting(12, x, y);
-        }
-        else
-        {
-          delay(10);
-        }
+    if (selected == 4)
+    {
+      waiting(12, x, y);
+    }
+    else
+    {
+      delay(10);
+    }
   }
   tft.println();
   checkscreen();
@@ -778,3 +778,127 @@ void subdisplay () {
   //team 10 display
 }
 
+
+void parseData()
+{
+  newData = false;
+  if (debug) {
+    Serial.println( receivedChars );
+  }
+
+  // HELLO
+  // If the Arduino receives "HELLO" it sends "HELLO" back
+  // This is used by the VB program to show it is connected
+  if (strcmp(receivedChars, "HELLO")  == 0)
+  {
+    tft.println("HELLO");
+    Serial.println("Hello");
+  }
+
+  if (strcmp(receivedChars, "START")  == 0)
+  {
+    tft.println("Started...");
+    Serial.println("Started...");
+  }
+
+
+  if (receivedChars[0] == 'F'  )
+  {
+    fishing(convertToNumber( 1 ), convertToNumber( 4 ));
+  }
+
+  if (receivedChars[0] == 'M'  )
+  {
+    RoboMove(convertToNumber( 1  ), convertToNumber( 4 ), convertToNumber( 7 ));
+  }
+
+
+
+  if (strcmp(receivedChars, "DON")  == 0)
+  {
+    if ( receivedChars[1] == 'O'  && receivedChars[2] == 'F' )  {
+      //do something else
+    }
+  }
+  if (strcmp(receivedChars, "DOF")  == 0)
+  {
+    //do someting
+  }
+}
+
+
+
+
+void recvWithStartEndMarkers()
+{
+
+  // function recvWithStartEndMarkers by Robin2 of the Arduino forums
+  // See  http://forum.arduino.cc/index.php?topic=288234.0
+
+  static boolean recvInProgress = false;
+  static byte ndx = 0;
+  char startMarker = '<';
+  char endMarker = '>';
+
+  char rc;
+
+  if (Serial.available() > 0)
+  {
+    rc = Serial.read();
+
+    if (recvInProgress == true)
+    {
+      if (rc != endMarker)
+      {
+        receivedChars[ndx] = rc;
+        ndx++;
+        if (ndx >= numChars) {
+          ndx = numChars - 1;
+        }
+      }
+      else
+      {
+        receivedChars[ndx] = '\0'; // terminate the string
+        recvInProgress = false;
+        ndx = 0;
+        newData = true;
+      }
+    }
+
+    else if (rc == startMarker) {
+      recvInProgress = true;
+    }
+  }
+
+}
+
+
+
+/*********************
+  converts 3 ascii characters to a numeric value
+
+  Global:
+   Expects receivedChars[] to contain the ascii characters
+
+  Local:
+   startPos is the position of the first character
+
+
+*/
+
+int convertToNumber( byte startPos)
+{
+  unsigned int tmp = 0;
+  tmp = (receivedChars[startPos] - 48) * 100;
+  tmp = tmp + (receivedChars[startPos + 1] - 48) * 10;
+  tmp = tmp + receivedChars[startPos + 2] - 48;
+  return tmp;
+}
+
+
+
+void sendOK(int val)
+{
+  // The 3 command buttons wait for the OK signal
+  Serial.print("OK"); Serial.println(val);
+}

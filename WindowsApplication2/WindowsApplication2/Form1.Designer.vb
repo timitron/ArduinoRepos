@@ -24,13 +24,14 @@ Partial Class Form1
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
-        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Legend1 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Series1 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
-        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
-        Dim Series2 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea10 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Legend4 As System.Windows.Forms.DataVisualization.Charting.Legend = New System.Windows.Forms.DataVisualization.Charting.Legend()
+        Dim ChartArea11 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Series7 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
+        Dim ChartArea12 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim Series8 As System.Windows.Forms.DataVisualization.Charting.Series = New System.Windows.Forms.DataVisualization.Charting.Series()
         Me.groupboxRobot = New System.Windows.Forms.GroupBox()
+        Me.txtSerialText = New System.Windows.Forms.TextBox()
         Me.Label_CCecho = New System.Windows.Forms.Label()
         Me.picDataReceived = New System.Windows.Forms.PictureBox()
         Me.btnComClose = New System.Windows.Forms.Button()
@@ -38,13 +39,10 @@ Partial Class Form1
         Me.Label_COMasigns = New System.Windows.Forms.Label()
         Me.cboBaudRate = New System.Windows.Forms.ComboBox()
         Me.Label_Baud = New System.Windows.Forms.Label()
-        Me.btnExit = New System.Windows.Forms.Button()
         Me.Label_TX = New System.Windows.Forms.Label()
         Me.Label_Rx = New System.Windows.Forms.Label()
-        Me.btnClear = New System.Windows.Forms.Button()
         Me.btnSend = New System.Windows.Forms.Button()
         Me.tbTx = New System.Windows.Forms.TextBox()
-        Me.tbRx = New System.Windows.Forms.TextBox()
         Me.Label_port = New System.Windows.Forms.Label()
         Me.picOpen = New System.Windows.Forms.PictureBox()
         Me.cboComPort = New System.Windows.Forms.ComboBox()
@@ -56,9 +54,9 @@ Partial Class Form1
         Me.Label3 = New System.Windows.Forms.Label()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.NumericUpDown3 = New System.Windows.Forms.NumericUpDown()
-        Me.NumericUpDown2 = New System.Windows.Forms.NumericUpDown()
-        Me.NumericUpDown1 = New System.Windows.Forms.NumericUpDown()
+        Me.numHeight = New System.Windows.Forms.NumericUpDown()
+        Me.numHeadAngle = New System.Windows.Forms.NumericUpDown()
+        Me.numXstep = New System.Windows.Forms.NumericUpDown()
         Me.buttonCompetition = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.numArmRad = New System.Windows.Forms.NumericUpDown()
@@ -84,9 +82,9 @@ Partial Class Form1
         CType(Me.picDataReceived, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picOpen, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox1.SuspendLayout()
-        CType(Me.NumericUpDown3, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.NumericUpDown2, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.NumericUpDown1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.numHeight, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.numHeadAngle, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.numXstep, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
         CType(Me.numArmRad, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TabControl1.SuspendLayout()
@@ -103,6 +101,7 @@ Partial Class Form1
         '
         'groupboxRobot
         '
+        Me.groupboxRobot.Controls.Add(Me.txtSerialText)
         Me.groupboxRobot.Controls.Add(Me.Label_CCecho)
         Me.groupboxRobot.Controls.Add(Me.picDataReceived)
         Me.groupboxRobot.Controls.Add(Me.btnComClose)
@@ -110,22 +109,28 @@ Partial Class Form1
         Me.groupboxRobot.Controls.Add(Me.Label_COMasigns)
         Me.groupboxRobot.Controls.Add(Me.cboBaudRate)
         Me.groupboxRobot.Controls.Add(Me.Label_Baud)
-        Me.groupboxRobot.Controls.Add(Me.btnExit)
         Me.groupboxRobot.Controls.Add(Me.Label_TX)
         Me.groupboxRobot.Controls.Add(Me.Label_Rx)
-        Me.groupboxRobot.Controls.Add(Me.btnClear)
         Me.groupboxRobot.Controls.Add(Me.btnSend)
         Me.groupboxRobot.Controls.Add(Me.tbTx)
-        Me.groupboxRobot.Controls.Add(Me.tbRx)
         Me.groupboxRobot.Controls.Add(Me.Label_port)
         Me.groupboxRobot.Controls.Add(Me.picOpen)
         Me.groupboxRobot.Controls.Add(Me.cboComPort)
         Me.groupboxRobot.Location = New System.Drawing.Point(37, 31)
         Me.groupboxRobot.Name = "groupboxRobot"
-        Me.groupboxRobot.Size = New System.Drawing.Size(376, 165)
+        Me.groupboxRobot.Size = New System.Drawing.Size(376, 226)
         Me.groupboxRobot.TabIndex = 0
         Me.groupboxRobot.TabStop = False
         Me.groupboxRobot.Text = "Connection:"
+        '
+        'txtSerialText
+        '
+        Me.txtSerialText.Location = New System.Drawing.Point(54, 106)
+        Me.txtSerialText.Multiline = True
+        Me.txtSerialText.Name = "txtSerialText"
+        Me.txtSerialText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtSerialText.Size = New System.Drawing.Size(306, 101)
+        Me.txtSerialText.TabIndex = 50
         '
         'Label_CCecho
         '
@@ -192,19 +197,10 @@ Partial Class Form1
         Me.Label_Baud.TabIndex = 41
         Me.Label_Baud.Text = "Baud"
         '
-        'btnExit
-        '
-        Me.btnExit.Location = New System.Drawing.Point(262, 139)
-        Me.btnExit.Name = "btnExit"
-        Me.btnExit.Size = New System.Drawing.Size(108, 20)
-        Me.btnExit.TabIndex = 39
-        Me.btnExit.Text = "Exit"
-        Me.btnExit.UseVisualStyleBackColor = True
-        '
         'Label_TX
         '
         Me.Label_TX.AutoSize = True
-        Me.Label_TX.Location = New System.Drawing.Point(23, 112)
+        Me.Label_TX.Location = New System.Drawing.Point(27, 80)
         Me.Label_TX.Name = "Label_TX"
         Me.Label_TX.Size = New System.Drawing.Size(21, 13)
         Me.Label_TX.TabIndex = 38
@@ -213,26 +209,17 @@ Partial Class Form1
         'Label_Rx
         '
         Me.Label_Rx.AutoSize = True
-        Me.Label_Rx.Location = New System.Drawing.Point(23, 80)
+        Me.Label_Rx.Location = New System.Drawing.Point(27, 113)
         Me.Label_Rx.Name = "Label_Rx"
         Me.Label_Rx.Size = New System.Drawing.Size(22, 13)
         Me.Label_Rx.TabIndex = 37
         Me.Label_Rx.Text = "RX"
         '
-        'btnClear
-        '
-        Me.btnClear.Location = New System.Drawing.Point(54, 138)
-        Me.btnClear.Name = "btnClear"
-        Me.btnClear.Size = New System.Drawing.Size(202, 20)
-        Me.btnClear.TabIndex = 36
-        Me.btnClear.Text = "Clear"
-        Me.btnClear.UseVisualStyleBackColor = True
-        '
         'btnSend
         '
-        Me.btnSend.Location = New System.Drawing.Point(309, 74)
+        Me.btnSend.Location = New System.Drawing.Point(269, 45)
         Me.btnSend.Name = "btnSend"
-        Me.btnSend.Size = New System.Drawing.Size(61, 59)
+        Me.btnSend.Size = New System.Drawing.Size(91, 20)
         Me.btnSend.TabIndex = 35
         Me.btnSend.Text = "send TX Box"
         Me.btnSend.UseVisualStyleBackColor = True
@@ -240,18 +227,10 @@ Partial Class Form1
         'tbTx
         '
         Me.tbTx.Font = New System.Drawing.Font("Courier New", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.tbTx.Location = New System.Drawing.Point(54, 106)
+        Me.tbTx.Location = New System.Drawing.Point(54, 74)
         Me.tbTx.Name = "tbTx"
-        Me.tbTx.Size = New System.Drawing.Size(249, 26)
+        Me.tbTx.Size = New System.Drawing.Size(306, 26)
         Me.tbTx.TabIndex = 34
-        '
-        'tbRx
-        '
-        Me.tbRx.Font = New System.Drawing.Font("Courier New", 12.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.tbRx.Location = New System.Drawing.Point(54, 74)
-        Me.tbRx.Name = "tbRx"
-        Me.tbRx.Size = New System.Drawing.Size(249, 26)
-        Me.tbRx.TabIndex = 33
         '
         'Label_port
         '
@@ -298,13 +277,13 @@ Partial Class Form1
         Me.GroupBox1.Controls.Add(Me.Label3)
         Me.GroupBox1.Controls.Add(Me.Label2)
         Me.GroupBox1.Controls.Add(Me.Label1)
-        Me.GroupBox1.Controls.Add(Me.NumericUpDown3)
-        Me.GroupBox1.Controls.Add(Me.NumericUpDown2)
-        Me.GroupBox1.Controls.Add(Me.NumericUpDown1)
+        Me.GroupBox1.Controls.Add(Me.numHeight)
+        Me.GroupBox1.Controls.Add(Me.numHeadAngle)
+        Me.GroupBox1.Controls.Add(Me.numXstep)
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
-        Me.GroupBox1.Location = New System.Drawing.Point(37, 202)
+        Me.GroupBox1.Location = New System.Drawing.Point(37, 263)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(376, 159)
+        Me.GroupBox1.Size = New System.Drawing.Size(376, 117)
         Me.GroupBox1.TabIndex = 1
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Robot Control"
@@ -312,9 +291,9 @@ Partial Class Form1
         'buttonFish
         '
         Me.buttonFish.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!)
-        Me.buttonFish.Location = New System.Drawing.Point(262, 103)
+        Me.buttonFish.Location = New System.Drawing.Point(262, 74)
         Me.buttonFish.Name = "buttonFish"
-        Me.buttonFish.Size = New System.Drawing.Size(98, 44)
+        Me.buttonFish.Size = New System.Drawing.Size(98, 33)
         Me.buttonFish.TabIndex = 7
         Me.buttonFish.Text = "Go Fish!"
         Me.buttonFish.UseVisualStyleBackColor = True
@@ -322,9 +301,9 @@ Partial Class Form1
         'buttonManualMove
         '
         Me.buttonManualMove.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.buttonManualMove.Location = New System.Drawing.Point(262, 43)
+        Me.buttonManualMove.Location = New System.Drawing.Point(262, 23)
         Me.buttonManualMove.Name = "buttonManualMove"
-        Me.buttonManualMove.Size = New System.Drawing.Size(98, 43)
+        Me.buttonManualMove.Size = New System.Drawing.Size(98, 34)
         Me.buttonManualMove.TabIndex = 6
         Me.buttonManualMove.Text = "Manual Move"
         Me.buttonManualMove.UseVisualStyleBackColor = True
@@ -333,7 +312,7 @@ Partial Class Form1
         '
         Me.Label3.AutoSize = True
         Me.Label3.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.Label3.Location = New System.Drawing.Point(6, 127)
+        Me.Label3.Location = New System.Drawing.Point(6, 87)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(141, 15)
         Me.Label3.TabIndex = 5
@@ -343,7 +322,7 @@ Partial Class Form1
         '
         Me.Label2.AutoSize = True
         Me.Label2.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.Label2.Location = New System.Drawing.Point(41, 86)
+        Me.Label2.Location = New System.Drawing.Point(41, 57)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(106, 15)
         Me.Label2.TabIndex = 4
@@ -353,32 +332,35 @@ Partial Class Form1
         '
         Me.Label1.AutoSize = True
         Me.Label1.Font = New System.Drawing.Font("Microsoft Sans Serif", 9.0!)
-        Me.Label1.Location = New System.Drawing.Point(51, 47)
+        Me.Label1.Location = New System.Drawing.Point(51, 27)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(96, 15)
         Me.Label1.TabIndex = 3
         Me.Label1.Text = "X Step Position: "
         '
-        'NumericUpDown3
+        'numHeight
         '
-        Me.NumericUpDown3.Location = New System.Drawing.Point(153, 123)
-        Me.NumericUpDown3.Name = "NumericUpDown3"
-        Me.NumericUpDown3.Size = New System.Drawing.Size(92, 24)
-        Me.NumericUpDown3.TabIndex = 2
+        Me.numHeight.Location = New System.Drawing.Point(153, 83)
+        Me.numHeight.Maximum = New Decimal(New Integer() {180, 0, 0, 0})
+        Me.numHeight.Name = "numHeight"
+        Me.numHeight.Size = New System.Drawing.Size(92, 24)
+        Me.numHeight.TabIndex = 2
         '
-        'NumericUpDown2
+        'numHeadAngle
         '
-        Me.NumericUpDown2.Location = New System.Drawing.Point(153, 82)
-        Me.NumericUpDown2.Name = "NumericUpDown2"
-        Me.NumericUpDown2.Size = New System.Drawing.Size(92, 24)
-        Me.NumericUpDown2.TabIndex = 1
+        Me.numHeadAngle.Location = New System.Drawing.Point(153, 53)
+        Me.numHeadAngle.Maximum = New Decimal(New Integer() {180, 0, 0, 0})
+        Me.numHeadAngle.Name = "numHeadAngle"
+        Me.numHeadAngle.Size = New System.Drawing.Size(92, 24)
+        Me.numHeadAngle.TabIndex = 1
         '
-        'NumericUpDown1
+        'numXstep
         '
-        Me.NumericUpDown1.Location = New System.Drawing.Point(153, 43)
-        Me.NumericUpDown1.Name = "NumericUpDown1"
-        Me.NumericUpDown1.Size = New System.Drawing.Size(92, 24)
-        Me.NumericUpDown1.TabIndex = 0
+        Me.numXstep.Location = New System.Drawing.Point(153, 23)
+        Me.numXstep.Maximum = New Decimal(New Integer() {750, 0, 0, 0})
+        Me.numXstep.Name = "numXstep"
+        Me.numXstep.Size = New System.Drawing.Size(92, 24)
+        Me.numXstep.TabIndex = 0
         '
         'buttonCompetition
         '
@@ -458,10 +440,10 @@ Partial Class Form1
         '
         'chartBoard
         '
-        ChartArea1.Name = "ChartArea1"
-        Me.chartBoard.ChartAreas.Add(ChartArea1)
-        Legend1.Name = "Legend1"
-        Me.chartBoard.Legends.Add(Legend1)
+        ChartArea10.Name = "ChartArea1"
+        Me.chartBoard.ChartAreas.Add(ChartArea10)
+        Legend4.Name = "Legend1"
+        Me.chartBoard.Legends.Add(Legend4)
         Me.chartBoard.Location = New System.Drawing.Point(3, 3)
         Me.chartBoard.Name = "chartBoard"
         Me.chartBoard.Size = New System.Drawing.Size(401, 341)
@@ -481,13 +463,13 @@ Partial Class Form1
         '
         'chartRot
         '
-        ChartArea2.Name = "ChartArea1"
-        Me.chartRot.ChartAreas.Add(ChartArea2)
+        ChartArea11.Name = "ChartArea1"
+        Me.chartRot.ChartAreas.Add(ChartArea11)
         Me.chartRot.Location = New System.Drawing.Point(7, 6)
         Me.chartRot.Name = "chartRot"
-        Series1.ChartArea = "ChartArea1"
-        Series1.Name = "Series1"
-        Me.chartRot.Series.Add(Series1)
+        Series7.ChartArea = "ChartArea1"
+        Series7.Name = "Series1"
+        Me.chartRot.Series.Add(Series7)
         Me.chartRot.Size = New System.Drawing.Size(397, 338)
         Me.chartRot.TabIndex = 1
         '
@@ -504,13 +486,13 @@ Partial Class Form1
         '
         'chartRel
         '
-        ChartArea3.Name = "ChartArea1"
-        Me.chartRel.ChartAreas.Add(ChartArea3)
+        ChartArea12.Name = "ChartArea1"
+        Me.chartRel.ChartAreas.Add(ChartArea12)
         Me.chartRel.Location = New System.Drawing.Point(7, 6)
         Me.chartRel.Name = "chartRel"
-        Series2.ChartArea = "ChartArea1"
-        Series2.Name = "Series1"
-        Me.chartRel.Series.Add(Series2)
+        Series8.ChartArea = "ChartArea1"
+        Series8.Name = "Series1"
+        Me.chartRel.Series.Add(Series8)
         Me.chartRel.Size = New System.Drawing.Size(397, 338)
         Me.chartRel.TabIndex = 1
         Me.chartRel.Text = "chartRel"
@@ -587,11 +569,16 @@ Partial Class Form1
         '
         'lstrobobitepos
         '
+        Me.lstrobobitepos.AutoArrange = False
+        Me.lstrobobitepos.HideSelection = False
         Me.lstrobobitepos.Location = New System.Drawing.Point(179, 399)
+        Me.lstrobobitepos.MultiSelect = False
         Me.lstrobobitepos.Name = "lstrobobitepos"
         Me.lstrobobitepos.Size = New System.Drawing.Size(218, 161)
         Me.lstrobobitepos.TabIndex = 5
+        Me.lstrobobitepos.TileSize = New System.Drawing.Size(150, 200)
         Me.lstrobobitepos.UseCompatibleStateImageBehavior = False
+        Me.lstrobobitepos.View = System.Windows.Forms.View.List
         '
         'Label7
         '
@@ -615,7 +602,9 @@ Partial Class Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(861, 630)
+        Me.AutoSize = True
+        Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.ClientSize = New System.Drawing.Size(869, 632)
         Me.Controls.Add(Me.Label9)
         Me.Controls.Add(Me.Label7)
         Me.Controls.Add(Me.lstrobobitepos)
@@ -632,9 +621,9 @@ Partial Class Form1
         CType(Me.picOpen, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
-        CType(Me.NumericUpDown3, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.NumericUpDown2, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.NumericUpDown1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.numHeight, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.numHeadAngle, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.numXstep, System.ComponentModel.ISupportInitialize).EndInit()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
         CType(Me.numArmRad, System.ComponentModel.ISupportInitialize).EndInit()
@@ -661,13 +650,10 @@ Partial Class Form1
     Friend WithEvents Label_COMasigns As Label
     Friend WithEvents cboBaudRate As ComboBox
     Friend WithEvents Label_Baud As Label
-    Friend WithEvents btnExit As Button
     Friend WithEvents Label_TX As Label
     Friend WithEvents Label_Rx As Label
-    Friend WithEvents btnClear As Button
     Friend WithEvents btnSend As Button
     Friend WithEvents tbTx As TextBox
-    Public WithEvents tbRx As TextBox
     Friend WithEvents Label_port As Label
     Friend WithEvents picOpen As PictureBox
     Friend WithEvents cboComPort As ComboBox
@@ -676,9 +662,9 @@ Partial Class Form1
     Friend WithEvents Label3 As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents Label1 As Label
-    Friend WithEvents NumericUpDown3 As NumericUpDown
-    Friend WithEvents NumericUpDown2 As NumericUpDown
-    Friend WithEvents NumericUpDown1 As NumericUpDown
+    Friend WithEvents numHeight As NumericUpDown
+    Friend WithEvents numHeadAngle As NumericUpDown
+    Friend WithEvents numXstep As NumericUpDown
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents buttonFish As Button
     Friend WithEvents buttonManualMove As Button
@@ -703,4 +689,5 @@ Partial Class Form1
     Friend WithEvents lstrobobitepos As ListView
     Friend WithEvents Label7 As Label
     Friend WithEvents Label9 As Label
+    Friend WithEvents txtSerialText As TextBox
 End Class
