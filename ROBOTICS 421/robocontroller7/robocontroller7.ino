@@ -309,7 +309,7 @@ void loop() {
 
       }
     }
-    
+
     if ((x > BUTTONCOMPETITION_X) && (x < (BUTTONCOMPETITION_X + BUTTONCOMPETITION_W)))    {
       if ((y > BUTTONCOMPETITION_Y) && (y <= (BUTTONCOMPETITION_Y + BUTTONCOMPETITION_H)))      {
         do
@@ -324,8 +324,8 @@ void loop() {
             tft.setTextColor(ILI9341_ORANGE);
             iscrn = 0;                                                 //avoid a memory overflow
             selected = 3;
-                                      xx = tft.getCursorX();
-              yy = tft.getCursorY();
+            xx = tft.getCursorX();
+            yy = tft.getCursorY();
           }
           while ( (Serial.available() < 1) and (cancel == 0))
           { //checking for cancel button press
@@ -612,8 +612,10 @@ int fishing(int steps, int angle) {
 
   //  RoboMove(300, 90, 0);
   //  delay(50);
-  if (selected != 3){  tft.print("Fishing");} 
-  
+  if (selected != 3) {
+    tft.print("Fishing");
+  }
+
 
   RoboMove(steps, angle, (boardHeight - 15));
   delay(600);                                                              //settling time for the fishing rod
@@ -639,12 +641,12 @@ int fishing(int steps, int angle) {
     HeadAngle.write((angle), headVel);
     delay(750);
     //fishing rod up and down
-    Height.write((boardHeight + 25), (heightVel * 2));                                      // move servo to target position at height velocity defined above.
+    Height.write((boardHeight + 25), 250);                                      // move servo to target position at height velocity defined above.
     delay(275);
 
     //fish pull
-    Height.write((boardHeight - 40), 200);                                      // move servo to target position at height velocity defined above.
-    HeadAngle.write((angle + 3), headVel);
+    Height.write((boardHeight - 40), 250);                                      // move servo to target position at height velocity defined above.
+    HeadAngle.write((angle), headVel);
     fishcount++;
     temp = analogRead(pressurePin);
     delay(200);
@@ -822,6 +824,7 @@ void parseData()
   if (receivedChars[0] == 'F'  )
   {
     tft.print(convertToNumber( 1 ));
+    fishing(convertToNumber( 1 ), convertToNumber(4));
 
   }
 
@@ -859,85 +862,86 @@ void parseData()
   }
   if ((receivedChars[0] == 'C') && (selected == 3))
   {
-    //while (1 == 1) //put a check for the game start pin here
-
+    while (digitalRead(24) == LOW) //put a check for the game start pin here
+    {
       fishing(convertToNumber( 1 ), convertToNumber( 4 ));
       Serial.println("Next Pos?");
+    }
+  }
 }
-}
-  void recvWithStartEndMarkers()
+void recvWithStartEndMarkers()
+{
+
+  // function recvWithStartEndMarkers by Robin2 of the Arduino forums
+  // See  http://forum.arduino.cc/index.php?topic=288234.0
+
+  static boolean recvInProgress = false;
+  static byte ndx = 0;
+  char startMarker = '<';
+  char endMarker = '>';
+
+  char rc;
+
+  if (Serial.available() > 0)
   {
+    rc = Serial.read();
 
-    // function recvWithStartEndMarkers by Robin2 of the Arduino forums
-    // See  http://forum.arduino.cc/index.php?topic=288234.0
-
-    static boolean recvInProgress = false;
-    static byte ndx = 0;
-    char startMarker = '<';
-    char endMarker = '>';
-
-    char rc;
-
-    if (Serial.available() > 0)
+    if (recvInProgress == true)
     {
-      rc = Serial.read();
-
-      if (recvInProgress == true)
+      if (rc != endMarker)
       {
-        if (rc != endMarker)
-        {
-          receivedChars[ndx] = rc;
-          ndx++;
-          if (ndx >= numChars) {
-            ndx = numChars - 1;
-          }
-        }
-        else
-        {
-          receivedChars[ndx] = '\0'; // terminate the string
-          recvInProgress = false;
-          ndx = 0;
-          newData = true;
+        receivedChars[ndx] = rc;
+        ndx++;
+        if (ndx >= numChars) {
+          ndx = numChars - 1;
         }
       }
-
-      else if (rc == startMarker) {
-        recvInProgress = true;
+      else
+      {
+        receivedChars[ndx] = '\0'; // terminate the string
+        recvInProgress = false;
+        ndx = 0;
+        newData = true;
       }
     }
 
+    else if (rc == startMarker) {
+      recvInProgress = true;
+    }
   }
 
-
-
-  /*********************
-    converts 3 ascii characters to a numeric value
-
-    Global:
-     Expects receivedChars[] to contain the ascii characters
-
-    Local:
-     startPos is the position of the first character
-
-
-  */
-
-  int convertToNumber( byte startPos)
-  {
-    unsigned int tmp = 0;
-    tmp = (receivedChars[startPos] - 48) * 100;
-    tmp = tmp + (receivedChars[startPos + 1] - 48) * 10;
-    tmp = tmp + receivedChars[startPos + 2] - 48;
-    return tmp;
-  }
+}
 
 
 
-  void sendOK(int val)
-  {
-    // The 3 command buttons wait for the OK signal
-    Serial.print("OK"); Serial.println(val);
-  }
+/*********************
+  converts 3 ascii characters to a numeric value
+
+  Global:
+   Expects receivedChars[] to contain the ascii characters
+
+  Local:
+   startPos is the position of the first character
+
+
+*/
+
+int convertToNumber( byte startPos)
+{
+  unsigned int tmp = 0;
+  tmp = (receivedChars[startPos] - 48) * 100;
+  tmp = tmp + (receivedChars[startPos + 1] - 48) * 10;
+  tmp = tmp + receivedChars[startPos + 2] - 48;
+  return tmp;
+}
+
+
+
+void sendOK(int val)
+{
+  // The 3 command buttons wait for the OK signal
+  Serial.print("OK"); Serial.println(val);
+}
 
 
 

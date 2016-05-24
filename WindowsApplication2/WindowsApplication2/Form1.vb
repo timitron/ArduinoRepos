@@ -19,6 +19,7 @@ Public Class Form1
     Public rotPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
     Public relPoint As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
     Public stepAngle As Double(,) = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}
+    Dim mode As Integer = 0
 
     ''' <summary>
     ''' close application and COM Port
@@ -83,7 +84,7 @@ Public Class Form1
             .RtsEnable = False
             .ReceivedBytesThreshold = 1             'threshold: one byte in buffer > event is fired
             .NewLine = vbCr         ' CR must be the last char in frame. This terminates the SerialPort.readLine
-            .ReadTimeout = 10000
+            .ReadTimeout = 100000000
             SerialPort1.Encoding = System.Text.Encoding.Default 'very important!
         End With
 
@@ -371,33 +372,46 @@ Public Class Form1
 
     End Sub
 
-    Private Sub buttonCompetition_Click(sender As Object, e As EventArgs) Handles buttonCompetition.Click
-        ''needs to select a fishing position and send info to the robot then wait for the request for another fish. 
-        Dim pick As Integer
-        Dim commandString As String = ""
-
-        For i As Integer = 0 To 15 Step 1
-            pick = CInt(Math.Ceiling(Rnd() * 7)) + 1
-
-            If (numXstep.Value <= 750) Then
-                numXstep.Value = Math.Round(stepAngle(pick, 0))
-                numHeadAngle.Value = Math.Round(stepAngle(pick, 1))
-            End If
-
-            commandString = "<C"
-            commandString &= String.Format("{0:000}", numXstep.Value)
-            commandString &= String.Format("{0:000}", numHeadAngle.Value)
-            commandString &= String.Format("{0:000}", 0)
-            commandString &= ">"
-            tbTx.Text = commandString
-            button_send_Click()
-
-            SerialPort1.ReadLine()
 
 
-        Next
+    Private Sub competition()
+        Try
 
+            For i As Integer = 0 To 15 Step 1
+
+                Dim pick As Integer
+                Dim commandString As String = ""
+
+                pick = CInt(Math.Ceiling(Rnd() * 7)) + 1
+
+                If ((Math.Round(stepAngle(pick, 0)) <= 750) And (Math.Round(stepAngle(pick, 0)) >= 1)) Then
+                    numXstep.Value = Math.Round(stepAngle(pick, 0))
+                    numHeadAngle.Value = Math.Round(stepAngle(pick, 1))
+                End If
+
+                commandString = "<C"
+                commandString &= String.Format("{0:000}", numXstep.Value)
+                commandString &= String.Format("{0:000}", numHeadAngle.Value)
+                commandString &= String.Format("{0:000}", 0)
+                commandString &= ">"
+                tbTx.Text = commandString
+                button_send_Click()
+
+                SerialPort1.ReadLine()
+
+
+
+            Next
+        Catch ex As Exception
+            MsgBox("PORT PROBABLY ISN'T OPEN!")
+
+        End Try
     End Sub
+
+    Private Sub buttonCompetition_Click() Handles buttonCompetition.Click
+        competition()
+    End Sub
+
 
 
 
