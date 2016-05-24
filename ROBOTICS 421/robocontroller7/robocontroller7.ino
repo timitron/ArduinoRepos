@@ -26,7 +26,7 @@
 #define heightPin 10
 #define pressurePin A4
 #define startPin  //this isn't attached yet
-
+#define fishPin 14
 /////////////////////////////////////////////
 ////Stepper Control Variables////
 /////////////////////////////////////////////
@@ -178,7 +178,8 @@ void setup() {
   tft.println("Stepper Activated");
   zeroX();                                                                //Resets the x position
   delay(50);
-  pinMode(pressurePin, INPUT);
+  pinMode(fishPin, INPUT);
+  
 
   //SD.begin(SD_CS);
 
@@ -437,6 +438,7 @@ int zeroX() { //zeros the x axis of the robot with the micro switch
   delay(100);
   tft.println("Zeroed");
   XStepper.resetPos();
+  delay(500);
   XStepper.goTo(100);
   waitforX();
 }
@@ -607,9 +609,6 @@ int RoboMove(int x, int headA, int heightA) {
   checkscreen();
 }
 int fishing(int steps, int angle) {
-  int nofish;
-
-
   //  RoboMove(300, 90, 0);
   //  delay(50);
   if (selected != 3) {
@@ -617,58 +616,32 @@ int fishing(int steps, int angle) {
   }
 
 
-  RoboMove(steps, angle, (boardHeight - 15));
+  RoboMove(steps, angle, (boardHeight - 5));
   delay(600);                                                              //settling time for the fishing rod
-  nofish = analogRead(pressurePin);
-  delay(150);
-  if (selected == 4)
-  {
-    tft.println();
-    tft.print("Initial pressure: ");
-    tft.print(nofish);
-  }
 
   int fishcount = 0;
-  if (selected == 4)
-  {
-    tft.println();
-    tft.print("Fishing, pressures:");
-  }
-
   int temp;
+  
   do
   {
+    Height.write((boardHeight - 5), 250);
     HeadAngle.write((angle), headVel);
     delay(750);
     //fishing rod up and down
-    Height.write((boardHeight + 25), 250);                                      // move servo to target position at height velocity defined above.
-    delay(275);
+    Height.write((boardHeight + 30), 250);                                      // move servo to target position at height velocity defined above.
+    delay(333);
 
     //fish pull
-    Height.write((boardHeight - 40), 250);                                      // move servo to target position at height velocity defined above.
-    HeadAngle.write((angle), headVel);
+    Height.write(0, 250);                                      // move servo to target position at height velocity defined above.
     fishcount++;
-    temp = analogRead(pressurePin);
-    delay(200);
-    temp = nofish - temp;
-    if (selected == 4)
-    {
-      tft.print(temp);
-      tft.print(", ");
-    }
-
-  } while ((temp < fishdiff) && (fishcount < fishtimeout));
-
-  if (selected == 4)
-  {
-    tft.println("\nReturning to drop-off");
-  }
-
+    delay(1000);
+    temp = digitalRead(fishPin);
+  } while ((temp==LOW) && (fishcount < fishtimeout));
 
   //turn back
   RoboMove(25, 5, 5);                                       // move servo to target position at height velocity defined above.
-  delay(25);
-  shakey(3);
+  delay(250);
+  shakey(4);
 }
 
 int checkscreen() {
@@ -860,11 +833,12 @@ void parseData()
     tft.println(convertToNumber( 4 ));
     tableHeight = convertToNumber( 4 );
   }
-  if ((receivedChars[0] == 'C') && (selected == 3))
+  if ((receivedChars[0] == 'C'))
   {
-    while (digitalRead(24) == LOW) //put a check for the game start pin here
+    if (digitalRead(24) == LOW) //put a check for the game start pin here
     {
       fishing(convertToNumber( 1 ), convertToNumber( 4 ));
+      delay(50);
       Serial.println("Next Pos?");
     }
   }

@@ -51,9 +51,6 @@ Public Class Form1
         numArmRad.Value = 10
         numDistancetoCenter.Value = 500
 
-
-
-
         ' read avaiable COM Ports:
         Dim Portnames As String() = System.IO.Ports.SerialPort.GetPortNames
         If Portnames Is Nothing Then
@@ -276,7 +273,7 @@ Public Class Form1
 
                 Dim stepdiff As Integer = 0
 
-                While (((relPoint(i, 1) + (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) < (numArmRad.Value ^ 2)) ''while the radius of the point is less than the
+                While (Sqrt((relPoint(i, 1) + (stepdiff * 0.0064)) ^ 2 + relPoint(i, 0) ^ 2) < (numArmRad.Value)) ''while the radius of the point is less than the
                     stepdiff = stepdiff + 1
                 End While
                 stepdiff = stepdiff - 1
@@ -287,7 +284,7 @@ Public Class Form1
                 bitestep = (numDistancetoCenter.Value) - stepdiff
                 biteangle = Atan2(relPoint(i, 0), (relPoint(i, 1) + (stepdiff * 0.0064)))
                 biteangle = biteangle * (360 / (2 * PI))
-                biteangle = (numHeadAngleZero.Value + biteangle * 2)
+                biteangle = (numHeadAngleZero.Value - biteangle * 2)
 
                 stepAngle(i, 0) = bitestep
                 stepAngle(i, 1) = biteangle
@@ -312,7 +309,7 @@ Public Class Form1
                 bitestep = (numDistancetoCenter.Value) + stepdiff
                 biteangle = Atan2(relPoint(i, 0), (relPoint(i, 1) - (stepdiff * 0.0064)))
                 biteangle = biteangle * (360 / (2 * PI))
-                biteangle = (numHeadAngleZero.Value + biteangle * 2)
+                biteangle = (numHeadAngleZero.Value - biteangle * 2)
 
                 stepAngle(i, 0) = bitestep
                 stepAngle(i, 1) = biteangle
@@ -377,12 +374,12 @@ Public Class Form1
     Private Sub competition()
         Try
 
-            For i As Integer = 0 To 15 Step 1
+            For i As Integer = 0 To 8 Step 1
 
                 Dim pick As Integer
                 Dim commandString As String = ""
 
-                pick = CInt(Math.Ceiling(Rnd() * 7)) + 1
+                pick = i
 
                 If ((Math.Round(stepAngle(pick, 0)) <= 750) And (Math.Round(stepAngle(pick, 0)) >= 1)) Then
                     numXstep.Value = Math.Round(stepAngle(pick, 0))
@@ -395,11 +392,10 @@ Public Class Form1
                 commandString &= String.Format("{0:000}", 0)
                 commandString &= ">"
                 tbTx.Text = commandString
+
                 button_send_Click()
 
                 SerialPort1.ReadLine()
-
-
 
             Next
         Catch ex As Exception
