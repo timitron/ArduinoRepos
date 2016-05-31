@@ -25,8 +25,9 @@
 #define headPin 11
 #define heightPin 10
 #define pressurePin A4
-#define startPin 24 //this isn't attached yet
+#define startPin 24
 #define fishPin 14
+
 /////////////////////////////////////////////
 ////Stepper Control Variables////
 /////////////////////////////////////////////
@@ -124,9 +125,9 @@ boolean debug = false;
 const byte numChars = 20;
 char receivedChars[numChars];
 boolean newData = false;
-int boardHeight = 90;    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
+int boardHeight = 95;    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
 int tableHeight = 160;   //this is the angle at which the robot should drop fish off
-int fishtimeout = 10;
+int fishtimeout = 4;
 
 void setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV4);
@@ -168,118 +169,68 @@ void setup() {
   zeroX();                                                                //Resets the x position
   delay(50);
   pinMode(fishPin, INPUT);
-
+  pinMode(startPin, INPUT);
 
   //SD.begin(SD_CS);
 
   //yield();
   //bmpDraw("splash.bmp", 0, 0);
   modeselect();
+  delay(1000);
+  tft.fillScreen(ILI9341_BLACK);                                     //blackscreen
+
+  iscrn = 0;                                                              //resets counter if inside waiting loop with display
+  tft.setTextSize(0);
+  tft.setTextColor(ILI9341_ORANGE);
+  tft.setCursor(0, 0);
+  tft.println("test");
+  RoboMove(725,90,100);
+  delay(10000);
+  RoboMove(100, 10, 10);
+  
 }
 void loop() {
+  int start;
 
-  // if the screen has changed display the original menu
-  if (menuString != "")
+Serial.flush();
+    start = digitalRead(startPin);
+
+
+  while (start == 1)
   {
-    menuString = "";
-    modeselect();
+    tft.println("Waiting on start");
+
+    delay(100);
+    start = digitalRead(startPin);
+    checkscreen();
+
   }
 
-  // Retrieve a point
-  TSPoint p = ts.getPoint();      // See if there's any  touch data for us
-  int cancel;
-  if ((p.z > MINPRESSURE) && (p.z < MAXPRESSURE))
+
+ 
+  if (start == 0)
   {
-    // Scale using the calibration #'s
-    // and rotate coordinate system
-    p.x = map(p.x, TS_MINY, TS_MAXY, 0, tft.height());
-    p.y = map(p.y, TS_MINX, TS_MAXX, 0, tft.width());
-    int y = tft.height() - p.x;
-    int x = p.y;
 
-
-    if ((x > BUTTONCOMPETITION_X) && (x < (BUTTONCOMPETITION_X + BUTTONCOMPETITION_W)))    {
-      if ((y > BUTTONCOMPETITION_Y) && (y <= (BUTTONCOMPETITION_Y + BUTTONCOMPETITION_H)))      {
-        do
-        { // do something over and over again until someone hits cancel
-          cancel = 0;
-          if (menuString == "")
-          {
-            menuString = "Competition Mode";
-            subdisplay();
-            tft.setCursor(0, 50);
-            tft.setTextSize(1);
-            tft.setTextColor(ILI9341_ORANGE);
-            iscrn = 0;                                                 //avoid a memory overflow
-            selected = 3;
-            xx = tft.getCursorX();
-            yy = tft.getCursorY();
-          }
-            competition();
-
-          
-        } while (cancel == 0);
-      }
+    delay(100); 
+Serial.println("Next Pos");
+    delay(100);
+    while ( Serial.available() < 1)
+    { //checking for cancel button press
+      delay(10);
     }
-    if ((x > BUTTONDEBUG_X) && (x < (BUTTONDEBUG_X + BUTTONDEBUG_W)))    {
-      if ((y > BUTTONDEBUG_Y) && (y <= (BUTTONDEBUG_Y + BUTTONDEBUG_H)))      {
-        do
-        { // do something over and over again until someone hits cancel
-          cancel = 0;
-          if (menuString == "")
-          {
-            menuString = "Debug Output";
-            subdisplay();
-            tft.setCursor(0, 50);
-            tft.setTextSize(1);
-            tft.setTextColor(ILI9341_ORANGE);
-            tft.print("Waiting on inputs");
-            xx = tft.getCursorX();
-            yy = tft.getCursorY();
-            iscrn = 0;                                                 //avoid a memory overflow
-            selected = 4;
-          }
-          while ( (Serial.available() < 1) and (cancel == 0))
-          {
-            waiting(12, xx, yy);
-            TSPoint pp = ts.getPoint();      // See if there's any  touch data for us
-            if ((pp.z > MINPRESSURE) && (pp.z < MAXPRESSURE))
-            {
-              pp.x = map(pp.x, TS_MINY, TS_MAXY, 0, tft.height());
-              pp.y = map(pp.y, TS_MINX, TS_MAXX, 0, tft.width());
-              int y = tft.height() - pp.x;
-              int x = pp.y;
-              if ((x > 20) && (x < 300))
-              {
-                if ((y > 180) && (y <= 210))
-                {
-                  cancel = 1;
-                }
-              }
-            }
-          }
-          checkscreen();
-          if (cancel == 0)
-          {
 
-            recvWithStartEndMarkers();
+    recvWithStartEndMarkers();
 
-            if (newData)
-            {
-              parseData();
-              tft.print("Waiting for inputs...");
-              xx = tft.getCursorX();
-              yy = tft.getCursorY();
-            }
-
-
-          }
-        } while (cancel == 0);
-      }
+    if (newData)
+    {
+      parseData();
+          delay(50);
+        Serial.println("Next Pos");
+        delay(100);
     }
+    start = digitalRead(startPin);
   }
-  menuString == "";
-  selected = 0;
+
 
 
 }
@@ -304,8 +255,7 @@ int zeroX() { //zeros the x axis of the robot with the micro switch
 }
 
 int checkpos() { //function to validate requested position move takes position in reqpos[] and puts it into targetpos[]
-  if (selected == 4)
-  {
+
     tft.println();
     tft.print("Checking inputs:");
     for (int i = 0; i < 3; i++)
@@ -314,7 +264,7 @@ int checkpos() { //function to validate requested position move takes position i
       tft.print(", ");
     }
 
-  }
+  
 
   if (reqpos[0] < xPosMin or reqpos[0] > xPosMax)
   {
@@ -471,12 +421,11 @@ int RoboMove(int x, int headA, int heightA) {
 int fishing(int steps, int angle) {
   //  RoboMove(300, 90, 0);
   //  delay(50);
-  if (selected != 3) {
-    tft.print("Fishing");
-  }
 
+  tft.print("Fishing");
 
   RoboMove(steps, angle, (boardHeight - 5));
+
   delay(600);                                                              //settling time for the fishing rod
 
   int fishcount = 0;
@@ -484,12 +433,16 @@ int fishing(int steps, int angle) {
 
   do
   {
+    if (startPin == HIGH)
+    {
+      delay(1000);
+    }
     Height.write((boardHeight - 5), 250);
     HeadAngle.write((angle), headVel);
     delay(750);
     //fishing rod up and down
-    Height.write((boardHeight + 30), 250);                                      // move servo to target position at height velocity defined above.
-    delay(333);
+    Height.write((boardHeight + 25), 125);                                      // move servo to target position at height velocity defined above.
+    delay(250);
 
     //fish pull
     Height.write(0, 250);                                      // move servo to target position at height velocity defined above.
@@ -507,14 +460,13 @@ int fishing(int steps, int angle) {
 int checkscreen() {
   if (tft.getCursorY() > 180 ) {
     tft.fillScreen(ILI9341_BLACK);                                     //blackscreen
-    subdisplay();
-
 
     iscrn = 0;                                                              //resets counter if inside waiting loop with display
     tft.setTextSize(1);
     tft.setTextColor(ILI9341_ORANGE);
+    tft.setCursor(0, 0);
     tft.println("Screen Cleared...");
-    tft.setCursor(0, 50);
+
   }
 }
 int waiting(int waitdiv, int endline, int line) {
@@ -685,7 +637,7 @@ void parseData()
   {
 
     fishing(convertToNumber( 1 ), convertToNumber( 4 ));
-    delay(50);
+
   }
 }
 void recvWithStartEndMarkers()
@@ -730,9 +682,6 @@ void recvWithStartEndMarkers()
   }
 
 }
-
-
-
 /*********************
   converts 3 ascii characters to a numeric value
 
@@ -796,13 +745,4 @@ void competition()
 
 
 }
-
-
-
-
-
-
-
-
-
 
