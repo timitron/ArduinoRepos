@@ -273,12 +273,10 @@ Public Class Form1
 
                 Dim stepdiff As Integer = 0
                 Dim neededxdist As Double
-
-                While (Sqrt(relPoint(1, 0) ^ 2 + (relPoint(i, 1) + (stepdiff * 0.0064)) ^ 2) < numArmRad.Value)
-                    stepdiff = stepdiff + 1
-                End While
-
                 neededxdist = (Sqrt(numArmRad.Value ^ 2 - relPoint(i, 0) ^ 2))  ''calculate new needed x position
+                stepdiff = Math.Round((neededxdist - relPoint(i, 1)) / 0.0064)
+
+
                 ''stepdiff = Math.Round((numArmRad.Value - neededxdist) / 0.0064)
                 ''stepdiff = stepdiff + ((numArmRad.Value - relPoint(i, 1)) / 0.0064)
 
@@ -288,7 +286,7 @@ Public Class Form1
                 bitestep = (numDistancetoCenter.Value) - stepdiff
                 biteangle = Atan2(relPoint(i, 0), neededxdist)
                 biteangle = biteangle * (360 / (2 * PI))
-                biteangle = (numHeadAngleZero.Value - biteangle * 2)
+                biteangle = (numHeadAngleZero.Value - (biteangle * 2))
 
                 stepAngle(i, 0) = bitestep
                 stepAngle(i, 1) = biteangle
@@ -303,12 +301,8 @@ Public Class Form1
                 Dim stepdiff As Integer = 0
                 Dim neededxdist As Double
 
-                While (Sqrt(relPoint(1, 0) ^ 2 + (relPoint(i, 1) - (stepdiff * 0.0064)) ^ 2) > numArmRad.Value)
-                    stepdiff = stepdiff + 1
-                End While
-
                 neededxdist = (Sqrt(numArmRad.Value ^ 2 - relPoint(i, 0) ^ 2))  ''calculate new needed x position
-                ''stepdiff = Math.Round((neededxdist - relPoint(i, 1)) / 0.0064)
+                stepdiff = Math.Round((neededxdist - relPoint(i, 1)) / 0.0064)
 
                 Dim bitestep As Double
                 Dim biteangle As Double
@@ -382,35 +376,23 @@ Public Class Form1
 
     Private Sub competition()
         Try
-            For j As Integer = 0 To 6 Step 1
+            txtCode.Clear()
 
+            For j As Integer = 0 To 8 Step 1
 
-                For i As Integer = 0 To 8 Step 1
+                If ((Math.Round(stepAngle(j, 0)) <= 750) And (Math.Round(stepAngle(j, 0)) >= 1)) Then
 
-                    SerialPort1.ReadLine()
+                    txtCode.Text &= "#define point"
+                    txtCode.Text &= j + 1
+                    txtCode.Text &= "x "
+                    txtCode.Text &= Math.Round(stepAngle(j, 0)) & vbNewLine
+                    txtCode.Text &= "#define point"
+                    txtCode.Text &= j + 1
+                    txtCode.Text &= "a "
+                    txtCode.Text &= Math.Round(stepAngle(j, 1)) & vbNewLine
 
+                End If
 
-
-                    Dim pick As Integer
-                    Dim commandString As String = ""
-
-                    pick = i
-
-                    If ((Math.Round(stepAngle(pick, 0)) <= 750) And (Math.Round(stepAngle(pick, 0)) >= 1)) Then
-                        numXstep.Value = Math.Round(stepAngle(pick, 0))
-                        numHeadAngle.Value = Math.Round(stepAngle(pick, 1))
-                    End If
-
-                    commandString = "<C"
-                    commandString &= String.Format("{0:000}", numXstep.Value)
-                    commandString &= String.Format("{0:000}", numHeadAngle.Value)
-                    commandString &= String.Format("{0:000}", 0)
-                    commandString &= ">"
-                    tbTx.Text = commandString
-
-                    button_send_Click()
-
-                Next
             Next
 
         Catch ex As Exception
@@ -422,11 +404,6 @@ Public Class Form1
     Private Sub buttonCompetition_Click() Handles buttonCompetition.Click
         competition()
     End Sub
-
-    Private Sub numDistancetoCenter_ValueChanged(sender As Object, e As EventArgs) Handles numDistancetoCenter.ValueChanged
-
-    End Sub
-
 
 
 

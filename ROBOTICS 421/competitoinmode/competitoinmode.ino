@@ -12,6 +12,20 @@
 #include <Fonts/FreeSansBoldOblique9pt7b.h>
 #include <Wire.h>
 
+//////define fishing points here
+#define point1x 100
+#define point1a 100
+#define point2x 100
+#define point2a 100
+#define point3x 100
+#define point3a 100
+#define point4x 100
+#define point4a 100
+#define point5x 100
+#define point5a 100
+#define point6x 100
+#define point6a 100
+
 ////////////////////////////////////////////////////
 //////board game defines/////////
 ////////////////////////////////////////////////////
@@ -128,6 +142,7 @@ boolean newData = false;
 int boardHeight = 95;    //this is the angle of the height servo at which the fishing rod just touches the top of the blue game board
 int tableHeight = 160;   //this is the angle at which the robot should drop fish off
 int fishtimeout = 4;
+int start;
 
 void setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV4);
@@ -171,10 +186,6 @@ void setup() {
   pinMode(fishPin, INPUT);
   pinMode(startPin, INPUT);
 
-  //SD.begin(SD_CS);
-
-  //yield();
-  //bmpDraw("splash.bmp", 0, 0);
   modeselect();
   delay(1000);
   tft.fillScreen(ILI9341_BLACK);                                     //blackscreen
@@ -184,54 +195,36 @@ void setup() {
   tft.setTextColor(ILI9341_ORANGE);
   tft.setCursor(0, 0);
   tft.println("test");
-  RoboMove(725,90,100);
-  delay(10000);
+  RoboMove(725, 90, 100);
+  delay(5000);
   RoboMove(100, 10, 10);
-  
+
 }
 void loop() {
-  int start;
 
-Serial.flush();
-    start = digitalRead(startPin);
+  start = digitalRead(startPin);
 
-
+  //wait for start of game
   while (start == 1)
   {
     tft.println("Waiting on start");
-
-    delay(100);
+    delay(10);
     start = digitalRead(startPin);
     checkscreen();
-
   }
 
 
- 
-  if (start == 0)
+  //do something while the game is going.
+  while (start == 0)
   {
+    fishing(point1x, point1a);
+    fishing(point2x, point2a);
+    fishing(point3x, point3a);
+    fishing(point4x, point4a);
+    fishing(point5x, point5a);
+    fishing(point6x, point6a);
 
-    delay(100); 
-Serial.println("Next Pos");
-    delay(100);
-    while ( Serial.available() < 1)
-    { //checking for cancel button press
-      delay(10);
-    }
-
-    recvWithStartEndMarkers();
-
-    if (newData)
-    {
-      parseData();
-          delay(50);
-        Serial.println("Next Pos");
-        delay(100);
-    }
-    start = digitalRead(startPin);
   }
-
-
 
 }
 int zeroX() { //zeros the x axis of the robot with the micro switch
@@ -256,15 +249,15 @@ int zeroX() { //zeros the x axis of the robot with the micro switch
 
 int checkpos() { //function to validate requested position move takes position in reqpos[] and puts it into targetpos[]
 
-    tft.println();
-    tft.print("Checking inputs:");
-    for (int i = 0; i < 3; i++)
-    {
-      tft.print(reqpos[i]);
-      tft.print(", ");
-    }
+  tft.println();
+  tft.print("Checking inputs:");
+  for (int i = 0; i < 3; i++)
+  {
+    tft.print(reqpos[i]);
+    tft.print(", ");
+  }
 
-  
+
 
   if (reqpos[0] < xPosMin or reqpos[0] > xPosMax)
   {
@@ -332,23 +325,6 @@ int checkpos() { //function to validate requested position move takes position i
 
 }
 
-int getinputs() { //buffer serial interface
-  tft.print("Waiting on inputs");
-  int x = tft.getCursorX();
-  int y = tft.getCursorY();
-  iscrn = 0;                                                 //avoid a memory overflow
-  while ( (Serial.available() < 3))
-  {
-    waiting(12, x, y);
-  }
-  tft.println();
-  checkscreen();
-  for (int n = 0; n < 3; n++)
-  {
-    reqpos[n] = Serial.parseInt(); // Then: Get them.
-  }
-  tft.print("parsed: ");
-}
 int shakey(int x) {
   // This function shakes the fishing rod to dislodge a fish the number of times which is passed
 
@@ -433,16 +409,25 @@ int fishing(int steps, int angle) {
 
   do
   {
-    if (startPin == HIGH)
+
+    start = digitalRead(startPin);
+    while (start == 1)
     {
-      delay(1000);
+      delay(100);
     }
+
     Height.write((boardHeight - 5), 250);
     HeadAngle.write((angle), headVel);
     delay(750);
     //fishing rod up and down
     Height.write((boardHeight + 25), 125);                                      // move servo to target position at height velocity defined above.
     delay(250);
+
+    start = digitalRead(startPin);
+    while (start == 1)
+    {
+      delay(100);
+    }
 
     //fish pull
     Height.write(0, 250);                                      // move servo to target position at height velocity defined above.
@@ -452,9 +437,19 @@ int fishing(int steps, int angle) {
   } while ((temp == LOW) && (fishcount < fishtimeout));
 
   //turn back
+  start = digitalRead(startPin);
+  while (start == 1)
+  {
+    delay(100);
+  }
   RoboMove(25, 5, 5);                                       // move servo to target position at height velocity defined above.
   delay(250);
   shakey(4);
+  start = digitalRead(startPin);
+  while (start == 1)
+  {
+    delay(100);
+  }
 }
 
 int checkscreen() {
@@ -551,198 +546,7 @@ void modeselect() {
 
 }
 
-void subdisplay () {
-  tft.fillScreen(ILI9341_BLACK);
-
-  //title
-  tft.setTextSize(3);
-  tft.fillRect(0, 0, 320, 45, ILI9341_ORANGE);
-  tft.setCursor(4, 15);
-  tft.setTextColor(ILI9341_BLACK);
-  tft.println(menuString);
-
-  //cancel button
-  tft.setTextSize(2);
-  tft.fillRect(20, 200, 280, 30, ILI9341_GREEN);
-  tft.setCursor(30, 210);
-  tft.setTextColor(ILI9341_RED);
-  tft.println("CANCEL");
-
-  //team 10 display
-}
-
-
-void parseData()
-{
-  newData = false;
-  if (debug) {
-    Serial.println( receivedChars );
-  }
-
-  // HELLO
-  // If the Arduino receives "HELLO" it sends "HELLO" back
-  // This is used by the VB program to show it is connected
-  if (strcmp(receivedChars, "HELLO")  == 0)
-  {
-    tft.println("HELLO");
-    Serial.println("Hello");
-  }
-
-  if (strcmp(receivedChars, "START")  == 0)
-  {
-    tft.println("Started...");
-    Serial.println("Started...");
-  }
-
-
-  if (receivedChars[0] == 'F'  )
-  {
-    tft.print(convertToNumber( 1 ));
-    fishing(convertToNumber( 1 ), convertToNumber(4));
-
-  }
-
-  if (receivedChars[0] == 'M'  )
-  {
-    tft.print(convertToNumber( 1 ));
-    RoboMove(convertToNumber( 1  ), convertToNumber( 4 ), convertToNumber( 7 ));
-  }
-
-  if (receivedChars[0] == 'Z'  )
-  {
-    zeroX();
-  }
-
-  if (receivedChars[0] == 'H'  )
-  {
-    tft.println();
-    tft.print("Board Height Set: ");
-    tft.print(convertToNumber( 1 ));
-    boardHeight = convertToNumber( 1  );
-    tft.print(" Table Height Set: ");
-    tft.println(convertToNumber( 4 ));
-    tableHeight = convertToNumber( 4 );
-  }
-
-  if (receivedChars[0] == 'J'  )
-  {
-    tft.println();
-    tft.print("Fish Pressure Difference Set: ");
-    tft.print(convertToNumber( 1 ));
-    tft.print(" Fishing attempt timeout Set: ");
-    tft.println(convertToNumber( 4 ));
-    tableHeight = convertToNumber( 4 );
-  }
-  if ((receivedChars[0] == 'C'))
-  {
-
-    fishing(convertToNumber( 1 ), convertToNumber( 4 ));
-
-  }
-}
-void recvWithStartEndMarkers()
-{
-
-  // function recvWithStartEndMarkers by Robin2 of the Arduino forums
-  // See  http://forum.arduino.cc/index.php?topic=288234.0
-
-  static boolean recvInProgress = false;
-  static byte ndx = 0;
-  char startMarker = '<';
-  char endMarker = '>';
-
-  char rc;
-
-  if (Serial.available() > 0)
-  {
-    rc = Serial.read();
-
-    if (recvInProgress == true)
-    {
-      if (rc != endMarker)
-      {
-        receivedChars[ndx] = rc;
-        ndx++;
-        if (ndx >= numChars) {
-          ndx = numChars - 1;
-        }
-      }
-      else
-      {
-        receivedChars[ndx] = '\0'; // terminate the string
-        recvInProgress = false;
-        ndx = 0;
-        newData = true;
-      }
-    }
-
-    else if (rc == startMarker) {
-      recvInProgress = true;
-    }
-  }
-
-}
-/*********************
-  converts 3 ascii characters to a numeric value
-
-  Global:
-   Expects receivedChars[] to contain the ascii characters
-
-  Local:
-   startPos is the position of the first character
-
-
-*/
-
-int convertToNumber( byte startPos)
-{
-  unsigned int tmp = 0;
-  tmp = (receivedChars[startPos] - 48) * 100;
-  tmp = tmp + (receivedChars[startPos + 1] - 48) * 10;
-  tmp = tmp + receivedChars[startPos + 2] - 48;
-  return tmp;
-}
 
 
 
-void sendOK(int val)
-{
-  // The 3 command buttons wait for the OK signal
-  Serial.print("OK"); Serial.println(val);
-}
-
-void competition()
-{
-  if (startPin == LOW)
-  {
-    tft.println("Waiting on start");
-  }
-  else
-  {
-    while (startPin == HIGH)
-    {
-
-      Serial.println("Next Pos");
-      while ( (Serial.available() < 1))
-      { //checking for cancel button press
-        delay(50);
-      }
-      recvWithStartEndMarkers();
-
-      if (newData)
-      {
-        parseData();
-        xx = tft.getCursorX();
-        yy = tft.getCursorY();
-      }
-
-    }
-  }
-
-
-
-
-
-
-}
 

@@ -75,9 +75,10 @@ Partial Class Form1
         Me.Label4 = New System.Windows.Forms.Label()
         Me.numBoardAngle = New System.Windows.Forms.NumericUpDown()
         Me.lstRawBitePos = New System.Windows.Forms.ListView()
-        Me.lstrobobitepos = New System.Windows.Forms.ListView()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.Label9 = New System.Windows.Forms.Label()
+        Me.lstrobobitepos = New System.Windows.Forms.ListView()
+        Me.txtCode = New System.Windows.Forms.TextBox()
         Me.groupboxRobot.SuspendLayout()
         CType(Me.picDataReceived, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picOpen, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -118,7 +119,7 @@ Partial Class Form1
         Me.groupboxRobot.Controls.Add(Me.cboComPort)
         Me.groupboxRobot.Location = New System.Drawing.Point(37, 31)
         Me.groupboxRobot.Name = "groupboxRobot"
-        Me.groupboxRobot.Size = New System.Drawing.Size(376, 226)
+        Me.groupboxRobot.Size = New System.Drawing.Size(376, 154)
         Me.groupboxRobot.TabIndex = 0
         Me.groupboxRobot.TabStop = False
         Me.groupboxRobot.Text = "Connection:"
@@ -129,7 +130,7 @@ Partial Class Form1
         Me.txtSerialText.Multiline = True
         Me.txtSerialText.Name = "txtSerialText"
         Me.txtSerialText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtSerialText.Size = New System.Drawing.Size(306, 101)
+        Me.txtSerialText.Size = New System.Drawing.Size(306, 36)
         Me.txtSerialText.TabIndex = 50
         '
         'Label_CCecho
@@ -281,7 +282,7 @@ Partial Class Form1
         Me.GroupBox1.Controls.Add(Me.numHeadAngle)
         Me.GroupBox1.Controls.Add(Me.numXstep)
         Me.GroupBox1.Font = New System.Drawing.Font("Microsoft Sans Serif", 11.0!)
-        Me.GroupBox1.Location = New System.Drawing.Point(37, 263)
+        Me.GroupBox1.Location = New System.Drawing.Point(37, 302)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Size = New System.Drawing.Size(376, 117)
         Me.GroupBox1.TabIndex = 1
@@ -365,7 +366,7 @@ Partial Class Form1
         'buttonCompetition
         '
         Me.buttonCompetition.Font = New System.Drawing.Font("Microsoft Sans Serif", 14.0!)
-        Me.buttonCompetition.Location = New System.Drawing.Point(31, 576)
+        Me.buttonCompetition.Location = New System.Drawing.Point(31, 615)
         Me.buttonCompetition.Name = "buttonCompetition"
         Me.buttonCompetition.Size = New System.Drawing.Size(376, 41)
         Me.buttonCompetition.TabIndex = 2
@@ -561,29 +562,16 @@ Partial Class Form1
         '
         'lstRawBitePos
         '
-        Me.lstRawBitePos.Location = New System.Drawing.Point(37, 399)
+        Me.lstRawBitePos.Location = New System.Drawing.Point(37, 438)
         Me.lstRawBitePos.Name = "lstRawBitePos"
         Me.lstRawBitePos.Size = New System.Drawing.Size(120, 161)
         Me.lstRawBitePos.TabIndex = 4
         Me.lstRawBitePos.UseCompatibleStateImageBehavior = False
         '
-        'lstrobobitepos
-        '
-        Me.lstrobobitepos.AutoArrange = False
-        Me.lstrobobitepos.HideSelection = False
-        Me.lstrobobitepos.Location = New System.Drawing.Point(179, 399)
-        Me.lstrobobitepos.MultiSelect = False
-        Me.lstrobobitepos.Name = "lstrobobitepos"
-        Me.lstrobobitepos.Size = New System.Drawing.Size(218, 161)
-        Me.lstrobobitepos.TabIndex = 5
-        Me.lstrobobitepos.TileSize = New System.Drawing.Size(150, 200)
-        Me.lstrobobitepos.UseCompatibleStateImageBehavior = False
-        Me.lstrobobitepos.View = System.Windows.Forms.View.List
-        '
         'Label7
         '
         Me.Label7.AutoSize = True
-        Me.Label7.Location = New System.Drawing.Point(43, 383)
+        Me.Label7.Location = New System.Drawing.Point(43, 422)
         Me.Label7.Name = "Label7"
         Me.Label7.Size = New System.Drawing.Size(74, 13)
         Me.Label7.TabIndex = 6
@@ -592,11 +580,33 @@ Partial Class Form1
         'Label9
         '
         Me.Label9.AutoSize = True
-        Me.Label9.Location = New System.Drawing.Point(201, 383)
+        Me.Label9.Location = New System.Drawing.Point(201, 422)
         Me.Label9.Name = "Label9"
         Me.Label9.Size = New System.Drawing.Size(81, 13)
         Me.Label9.TabIndex = 7
         Me.Label9.Text = "Robot Bite Pos."
+        '
+        'lstrobobitepos
+        '
+        Me.lstrobobitepos.AutoArrange = False
+        Me.lstrobobitepos.HideSelection = False
+        Me.lstrobobitepos.Location = New System.Drawing.Point(179, 438)
+        Me.lstrobobitepos.MultiSelect = False
+        Me.lstrobobitepos.Name = "lstrobobitepos"
+        Me.lstrobobitepos.Size = New System.Drawing.Size(218, 161)
+        Me.lstrobobitepos.TabIndex = 5
+        Me.lstrobobitepos.TileSize = New System.Drawing.Size(150, 200)
+        Me.lstrobobitepos.UseCompatibleStateImageBehavior = False
+        Me.lstrobobitepos.View = System.Windows.Forms.View.List
+        '
+        'txtCode
+        '
+        Me.txtCode.Location = New System.Drawing.Point(37, 192)
+        Me.txtCode.Multiline = True
+        Me.txtCode.Name = "txtCode"
+        Me.txtCode.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtCode.Size = New System.Drawing.Size(360, 104)
+        Me.txtCode.TabIndex = 8
         '
         'Form1
         '
@@ -604,7 +614,8 @@ Partial Class Form1
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.AutoSize = True
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ClientSize = New System.Drawing.Size(869, 632)
+        Me.ClientSize = New System.Drawing.Size(869, 677)
+        Me.Controls.Add(Me.txtCode)
         Me.Controls.Add(Me.Label9)
         Me.Controls.Add(Me.Label7)
         Me.Controls.Add(Me.lstrobobitepos)
@@ -686,8 +697,9 @@ Partial Class Form1
     Friend WithEvents numArmRad As NumericUpDown
     Friend WithEvents Label8 As Label
     Friend WithEvents lstRawBitePos As ListView
-    Friend WithEvents lstrobobitepos As ListView
     Friend WithEvents Label7 As Label
     Friend WithEvents Label9 As Label
     Friend WithEvents txtSerialText As TextBox
+    Friend WithEvents txtCode As TextBox
+    Friend WithEvents lstrobobitepos As ListView
 End Class
